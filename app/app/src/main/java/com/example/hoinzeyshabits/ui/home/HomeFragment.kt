@@ -8,8 +8,11 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.databinding.FragmentHomeBinding
+import com.example.hoinzeyshabits.model.Habit
 
 class HomeFragment : Fragment() {
 
@@ -31,10 +34,13 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
+        val adapter = HabitViewAdapter(requireContext(), homeViewModel.getHabits())
+        binding.habitRecyclerView.adapter = adapter
+
+        val layoutManager = LinearLayoutManager(requireContext())
+        layoutManager.orientation = RecyclerView.VERTICAL
+        binding.habitRecyclerView.layoutManager = layoutManager
+
         return root
     }
 
