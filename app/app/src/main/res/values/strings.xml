@@ -8,6 +8,13 @@
     <string name="action_settings">Settings</string>
 
     <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
+
+    <string name="habit">Habit</string>
+    <string name="habit_new">New habit</string>
+    <string name="habit_edit">Edit habit</string>
+    <string name="habit_frequency">Habit frequency</string>
+    <string name="times_per_day">Times per day</string>
+    <string name="times_per_week">Times per week</string>
+
+    <string name="save">Save</string>
 </resources>

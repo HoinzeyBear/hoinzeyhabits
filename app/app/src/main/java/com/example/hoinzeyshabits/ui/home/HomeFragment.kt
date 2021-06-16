@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.databinding.FragmentHomeBinding
 import com.example.hoinzeyshabits.model.Habit
+import com.google.android.material.snackbar.Snackbar
 
 class HomeFragment : Fragment() {
 
@@ -40,6 +41,11 @@ class HomeFragment : Fragment() {
         val layoutManager = LinearLayoutManager(requireContext())
         layoutManager.orientation = RecyclerView.VERTICAL
         binding.habitRecyclerView.layoutManager = layoutManager
+
+        binding.addHabit.setOnClickListener { view ->
+            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+        }
 
         return root
     }
