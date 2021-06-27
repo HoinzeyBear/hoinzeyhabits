@@ -1,16 +1,24 @@
-package com.example.hoinzeyshabits.ui.home
+package com.example.hoinzeyshabits.views
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.TextView
+import androidx.navigation.fragment.NavHostFragment.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.hoinzeyshabits.R
+import com.example.hoinzeyshabits.RecyclerViewClickListener
 import com.example.hoinzeyshabits.model.Habit
+import kotlin.properties.Delegates
 
 class HabitViewAdapter (val context: Context, var habitList: ArrayList<Habit>)
     : RecyclerView.Adapter<HabitViewAdapter.HabitViewHolder>(){
+
+    var itemClickListener: RecyclerViewClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HabitViewHolder {
         val itemView: View = LayoutInflater.from(context).inflate(R.layout.habit_item, parent, false)
@@ -26,10 +34,10 @@ class HabitViewAdapter (val context: Context, var habitList: ArrayList<Habit>)
         return habitList.size
     }
 
-    inner class HabitViewHolder(val habitView: View):RecyclerView.ViewHolder(habitView) {
+    inner class HabitViewHolder(val habitView: View):RecyclerView.ViewHolder(habitView), View.OnClickListener {
 
-        var currentPosition: Int = -1
-        var habit: Habit? = null
+        var currentPosition by Delegates.notNull<Int>()
+        lateinit var habit: Habit
         var txv_habitName: TextView? = null
 
         fun populate(habit: Habit, position: Int) {
@@ -39,6 +47,12 @@ class HabitViewAdapter (val context: Context, var habitList: ArrayList<Habit>)
             }
             this.currentPosition = position
             this.habit = habit
+            habitView.setOnClickListener(this)
+        }
+
+        override fun onClick(view: View?) {
+            Log.d("ADAPTER", "Clicked on a view")
+            itemClickListener?.recyclerViewListClicked(view, habit.habitId)
         }
     }
 }

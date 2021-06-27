@@ -13,8 +13,14 @@
     <string name="habit_new">New habit</string>
     <string name="habit_edit">Edit habit</string>
     <string name="habit_frequency">Habit frequency</string>
+    <string-array name="habit_frequency_options">
+        <item>Daily</item>
+        <item>Weekly</item>
+    </string-array>
     <string name="times_per_day">Times per day</string>
     <string name="times_per_week">Times per week</string>
 
     <string name="save">Save</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -7,17 +7,43 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.example.hoinzeyshabits.ui.home.HomeFragment"
+        android:name="com.example.hoinzeyshabits.views.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_nav_home_to_newHabitFragment"
             app:destination="@id/newHabitFragment"
             app:enterAnim="@android:anim/fade_in" />
+        <action
+            android:id="@+id/action_nav_home_to_editHabitFragment"
+            app:destination="@id/editHabitFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/newHabitFragment"
-        android:name="com.example.hoinzeyshabits.NewHabitFragment"
+        android:name="com.example.hoinzeyshabits.views.NewHabitFragment"
         android:label="fragment_new_habit"
-        tools:layout="@layout/fragment_new_habit" />
+        tools:layout="@layout/fragment_new_habit" >
+        <action
+            android:id="@+id/action_newHabitFragment_to_nav_home"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_home"
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/editHabitFragment"
+        android:name="com.example.hoinzeyshabits.views.EditHabitFragment"
+        android:label="fragment_edit_habit"
+        tools:layout="@layout/fragment_edit_habit" >
+        <action
+            android:id="@+id/action_editHabitFragment_to_nav_home"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_home"
+            app:popUpToInclusive="true"/>
+        <argument
+            android:name="habitId"
+            app:argType="integer"
+            android:defaultValue="-1"/>
+    </fragment>
+
 </navigation>
