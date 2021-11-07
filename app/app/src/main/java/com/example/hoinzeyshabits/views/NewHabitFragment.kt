@@ -7,16 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.Toast
-import androidx.core.view.get
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.example.hoinzeyshabits.HabitDao
+import com.example.hoinzeyshabits.HabitsApplication
+import com.example.hoinzeyshabits.data.HabitDao
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.databinding.FragmentNewHabitBinding
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.model.HabitFrequency
-import com.google.android.material.textfield.TextInputLayout
 import org.joda.time.DateTime
 import kotlin.random.Random
 
@@ -29,6 +27,10 @@ class NewHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private var _binding: FragmentNewHabitBinding? = null
     private val binding get() = _binding!!
+
+    private val habitsViewModel: HabitsViewModel by viewModels {
+        HabitsViewModelFactory((activity?.application as HabitsApplication).repository)
+    }
 
     private var selectedFrequency = HabitFrequency.DAILY
 
@@ -66,10 +68,9 @@ class NewHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val newHabit = Habit(Random.nextInt(),
             binding.newHabitName.editText?.text.toString(),
             selectedFrequency,
-            binding.newHabitFrequencyUnit.editText?.text.toString().toInt(),
-            DateTime.now())
+            binding.newHabitFrequencyUnit.editText?.text.toString().toInt())
 
-        HabitDao.addHabit(newHabit)
+        habitsViewModel.insert(newHabit)
         findNavController().navigate(R.id.action_newHabitFragment_to_nav_home)
     }
 

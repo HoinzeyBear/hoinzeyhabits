@@ -7,21 +7,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import com.example.hoinzeyshabits.HabitDao
+import com.example.hoinzeyshabits.HabitsApplication
+import com.example.hoinzeyshabits.data.HabitDao
 import com.example.hoinzeyshabits.R
+import com.example.hoinzeyshabits.data.AppDatabase
 import com.example.hoinzeyshabits.databinding.FragmentEditHabitBinding
-import com.example.hoinzeyshabits.databinding.FragmentNewHabitBinding
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.model.HabitFrequency
+import kotlinx.coroutines.CoroutineScope
 
-
+//todo hookup the save button
+//todo fix this page
 class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private var _binding: FragmentEditHabitBinding? = null
     private val binding get() = _binding!!
     private var selectedFrequency = HabitFrequency.DAILY
-
-    lateinit var habit: Habit
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +31,11 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentEditHabitBinding.inflate(inflater)
 
         val habitId = EditHabitFragmentArgs.fromBundle(requireArguments()).habitId
-        val habit: Habit? = HabitDao.getById(habitId)
+//        val habit: Habit = HabitsAP
 
         ArrayAdapter.createFromResource(requireContext(),
             R.array.habit_frequency_options,
@@ -46,11 +47,11 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
             binding.habitSpinner.onItemSelectedListener = this
         }
 
-        binding.apply {
-            editHabitName.editText?.setText(habit?.name)
-            editHabitFrequencyUnit.editText?.setText(habit?.habitFrequencyCount.toString())
-            habit?.habitFrequency?.let { habitSpinner.setSelection(it.ordinal) }
-        }
+//        binding.apply {
+//            editHabitName.editText?.setText(habit?.name)
+//            editHabitFrequencyUnit.editText?.setText(habit?.habitFrequencyCount.toString())
+//            habit?.habitFrequency?.let { habitSpinner.setSelection(it.ordinal) }
+//        }
 
         return binding.root
     }

@@ -5,21 +5,21 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.hoinzeyshabits.HabitDao
+import com.example.hoinzeyshabits.HabitsApplication
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.RecyclerViewClickListener
 import com.example.hoinzeyshabits.databinding.FragmentHomeBinding
-import com.example.hoinzeyshabits.model.Habit
 
 class HomeFragment : Fragment(), RecyclerViewClickListener {
 
-    private lateinit var homeViewModel: HomeViewModel
+    private val habitsViewModel: HabitsViewModel by viewModels {
+        HabitsViewModelFactory((activity?.application as HabitsApplication).repository)
+    }
     private var _binding: FragmentHomeBinding? = null
 
     // This property is only valid between onCreateView and
@@ -31,14 +31,20 @@ class HomeFragment : Fragment(), RecyclerViewClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val adapter = HabitViewAdapter(requireContext(), homeViewModel.getHabits())
+        val adapter = HabitViewAdapter()
         binding.habitRecyclerView.adapter = adapter
+
+        // Add an observer on the LiveData returned by getAlphabetizedWords.
+        // The onChanged() method fires when the observed data changes and the activity is
+        // in the foreground.
+        habitsViewModel.habits.observe(viewLifecycleOwner) { habits ->
+            // Update the cached copy of the words in the adapter.
+            habits.let { adapter.setHabits(it) }
+        }
 
 //        adapter.itemClickListener = AdapterView.OnItemClickListener { adapter, view, position, _ ->
 //            val selectedHabit = adapter.getItemAtPosition(position) as Habit
@@ -55,7 +61,7 @@ class HomeFragment : Fragment(), RecyclerViewClickListener {
             findNavController().navigate(R.id.action_nav_home_to_newHabitFragment)
         }
 
-        Log.d("HOME", homeViewModel.getHabits().toString())
+        Log.d("HOME", habitsViewModel.habits.toString())
 
         return root
     }

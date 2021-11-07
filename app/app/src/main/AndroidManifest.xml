@@ -3,6 +3,7 @@
     package="com.example.hoinzeyshabits">
 
     <application
+        android:name=".HabitsApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
@@ -12,7 +13,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Hoinzeyshabits.NoActionBar">
+            android:theme="@style/Theme.Hoinzeyshabits.NoActionBar"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

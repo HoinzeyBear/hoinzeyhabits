@@ -1,28 +1,29 @@
 package com.example.hoinzeyshabits.views
 
-import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.TextView
-import androidx.navigation.fragment.NavHostFragment.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.RecyclerViewClickListener
 import com.example.hoinzeyshabits.model.Habit
 import kotlin.properties.Delegates
 
-class HabitViewAdapter (val context: Context, var habitList: ArrayList<Habit>)
+class HabitViewAdapter ()
     : RecyclerView.Adapter<HabitViewAdapter.HabitViewHolder>(){
 
     var itemClickListener: RecyclerViewClickListener? = null
+    private var habitList = listOf<Habit>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HabitViewHolder {
-        val itemView: View = LayoutInflater.from(context).inflate(R.layout.habit_item, parent, false)
+        val itemView: View = LayoutInflater.from(parent.context).inflate(R.layout.habit_item, parent, false)
         return HabitViewHolder(itemView)
+    }
+
+    fun setHabits(habits: List<Habit>) {
+        this.habitList = habits
     }
 
     override fun onBindViewHolder(holder: HabitViewHolder, position: Int) {
