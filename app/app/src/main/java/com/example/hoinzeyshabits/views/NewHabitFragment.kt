@@ -7,6 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.hoinzeyshabits.HabitsApplication
@@ -15,6 +18,7 @@ import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.databinding.FragmentNewHabitBinding
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.model.HabitFrequency
+import com.google.gson.Gson
 import org.joda.time.DateTime
 import kotlin.random.Random
 
@@ -65,12 +69,12 @@ class NewHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun saveHabit() {
-        val newHabit = Habit(Random.nextInt(),
-            binding.newHabitName.editText?.text.toString(),
-            selectedFrequency,
-            binding.newHabitFrequencyUnit.editText?.text.toString().toInt())
+        val newHabit = Habit(
+            name = binding.newHabitName.editText?.text.toString(),
+            habitFrequency = selectedFrequency,
+            habitFrequencyCount = binding.newHabitFrequencyUnit.editText?.text.toString().toInt())
 
-        habitsViewModel.insert(newHabit)
+        setFragmentResult("newHabit", bundleOf(Pair("habitkey", Gson().toJson(newHabit, Habit::class.java))))
         findNavController().navigate(R.id.action_newHabitFragment_to_nav_home)
     }
 

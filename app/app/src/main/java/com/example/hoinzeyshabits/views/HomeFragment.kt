@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,6 +16,8 @@ import com.example.hoinzeyshabits.HabitsApplication
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.RecyclerViewClickListener
 import com.example.hoinzeyshabits.databinding.FragmentHomeBinding
+import com.example.hoinzeyshabits.model.Habit
+import com.google.gson.Gson
 
 class HomeFragment : Fragment(), RecyclerViewClickListener {
 
@@ -25,6 +29,15 @@ class HomeFragment : Fragment(), RecyclerViewClickListener {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setFragmentResultListener("newHabit") { requestKey, bundle ->
+            val result = Gson().fromJson(bundle.getString("habitkey"), Habit::class.java)
+            habitsViewModel.insert(result)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,6 +57,7 @@ class HomeFragment : Fragment(), RecyclerViewClickListener {
         habitsViewModel.habits.observe(viewLifecycleOwner) { habits ->
             // Update the cached copy of the words in the adapter.
             habits.let { adapter.setHabits(it) }
+            adapter.notifyDataSetChanged()
         }
 
 //        adapter.itemClickListener = AdapterView.OnItemClickListener { adapter, view, position, _ ->

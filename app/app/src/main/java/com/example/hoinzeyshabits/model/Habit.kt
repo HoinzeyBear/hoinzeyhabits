@@ -9,7 +9,7 @@ import org.joda.time.DateTime
 data class Habit(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "habitid")
-    val habitId: Int = 0,
+    var habitId: Int = 0,
     val name: String,
     val habitFrequency: HabitFrequency,
     val habitFrequencyCount: Int = 1,
