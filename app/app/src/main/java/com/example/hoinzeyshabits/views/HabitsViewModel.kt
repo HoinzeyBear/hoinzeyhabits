@@ -3,6 +3,7 @@ package com.example.hoinzeyshabits.views
 import androidx.lifecycle.*
 import com.example.hoinzeyshabits.data.HabitsRepository
 import com.example.hoinzeyshabits.model.Habit
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class HabitsViewModel(private val habitRepo: HabitsRepository)
@@ -19,6 +20,10 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
      */
     fun insert(habit: Habit) = viewModelScope.launch {
         habitRepo.insert(habit)
+    }
+
+    suspend fun getById(id: Int): Habit {
+        return habitRepo.getByID(id)
     }
 
 }

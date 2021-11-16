@@ -1,6 +1,8 @@
 package com.example.hoinzeyshabits.data
 
 import androidx.annotation.WorkerThread
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import com.example.hoinzeyshabits.model.Habit
 import kotlinx.coroutines.flow.Flow
 
@@ -17,7 +19,14 @@ class HabitsRepository(private val habitDao: HabitDao) {
     // off the main thread.
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(habit: Habit) {
         habitDao.insert(habit)
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getByID(id: Int): Habit {
+        return habitDao.getById(id)
     }
 }

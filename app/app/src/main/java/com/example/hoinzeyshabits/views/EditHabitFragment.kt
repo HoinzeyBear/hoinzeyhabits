@@ -1,20 +1,22 @@
 package com.example.hoinzeyshabits.views
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.hoinzeyshabits.HabitsApplication
-import com.example.hoinzeyshabits.data.HabitDao
 import com.example.hoinzeyshabits.R
-import com.example.hoinzeyshabits.data.AppDatabase
 import com.example.hoinzeyshabits.databinding.FragmentEditHabitBinding
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.model.HabitFrequency
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 //todo hookup the save button
 //todo fix this page
@@ -23,6 +25,12 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var _binding: FragmentEditHabitBinding? = null
     private val binding get() = _binding!!
     private var selectedFrequency = HabitFrequency.DAILY
+
+    private lateinit var habit: Habit
+
+    private val habitsViewModel: HabitsViewModel by viewModels {
+        HabitsViewModelFactory((activity?.application as HabitsApplication).repository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +43,11 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
         _binding = FragmentEditHabitBinding.inflate(inflater)
 
         val habitId = EditHabitFragmentArgs.fromBundle(requireArguments()).habitId
-//        val habit: Habit = HabitsAP
+        habit = runBlocking {
+            withContext(Dispatchers.IO) {
+                habitsViewModel.getById(habitId);
+            }
+        }
 
         ArrayAdapter.createFromResource(requireContext(),
             R.array.habit_frequency_options,
@@ -47,11 +59,13 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
             binding.habitSpinner.onItemSelectedListener = this
         }
 
-//        binding.apply {
-//            editHabitName.editText?.setText(habit?.name)
-//            editHabitFrequencyUnit.editText?.setText(habit?.habitFrequencyCount.toString())
-//            habit?.habitFrequency?.let { habitSpinner.setSelection(it.ordinal) }
-//        }
+        binding.apply {
+            editHabitName.editText?.setText(habit.name)
+            editHabitFrequencyUnit.editText?.setText(habit.habitFrequencyCount.toString())
+            habit.habitFrequency.let { habitSpinner.setSelection(it.ordinal) }
+        }
+
+        binding.habitEdit.setOnClickListener { saveHabit() }
 
         return binding.root
     }
@@ -69,6 +83,18 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
             selectedFrequency = HabitFrequency.DAILY
             binding.editHabitFrequencyUnit.hint = getString(R.string.times_per_day)
         }
+    }
+
+    private fun saveHabit() {
+
+        val updatedHabit = habit.copy(
+            name = binding.editHabitName.editText?.text.toString(),
+            habitFrequency = selectedFrequency,
+            habitFrequencyCount = binding.editHabitFrequencyUnit.editText?.text.toString().toInt()
+        )
+
+        habitsViewModel.insert(updatedHabit)
+        findNavController().navigate(R.id.action_editHabitFragment_to_nav_home)
     }
 
     override fun onNothingSelected(p0: AdapterView<*>?) {
