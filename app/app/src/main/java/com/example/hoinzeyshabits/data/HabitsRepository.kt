@@ -1,6 +1,7 @@
 package com.example.hoinzeyshabits.data
 
 import androidx.annotation.WorkerThread
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import com.example.hoinzeyshabits.model.Habit
@@ -22,6 +23,12 @@ class HabitsRepository(private val habitDao: HabitDao) {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(habit: Habit) {
         habitDao.insert(habit)
+    }
+
+    @WorkerThread
+    @Delete
+    suspend fun delete(habit: Habit) {
+        habitDao.deleteHabit(habit)
     }
 
     @Suppress("RedundantSuspendModifier")

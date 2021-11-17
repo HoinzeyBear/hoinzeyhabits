@@ -1,9 +1,7 @@
 package com.example.hoinzeyshabits.views
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
@@ -15,11 +13,10 @@ import com.example.hoinzeyshabits.databinding.FragmentEditHabitBinding
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.model.HabitFrequency
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-//todo hookup the save button
-//todo fix this page
 class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private var _binding: FragmentEditHabitBinding? = null
@@ -40,6 +37,7 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
         _binding = FragmentEditHabitBinding.inflate(inflater)
 
         val habitId = EditHabitFragmentArgs.fromBundle(requireArguments()).habitId
@@ -68,6 +66,26 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
         binding.habitEdit.setOnClickListener { saveHabit() }
 
         return binding.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.edit_habit_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.delete_habit -> {
+                runBlocking {
+                    withContext(Dispatchers.IO) {
+                        habitsViewModel.delete(habit)
+                    }
+                }
+                findNavController().navigate(R.id.action_editHabitFragment_to_nav_home)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onDestroyView() {
@@ -102,9 +120,9 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     companion object {
-        @JvmStatic
-        fun newInstance() =
-            EditHabitFragment()
+//        @JvmStatic
+//        fun newInstance() =
+//            EditHabitFragment()
 //                .apply {
 //                arguments = Bundle().apply {
 //                    putString(ARG_PARAM1, param1)

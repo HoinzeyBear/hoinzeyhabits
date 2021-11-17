@@ -61,11 +61,6 @@ class HomeFragment : Fragment(), RecyclerViewClickListener {
             adapter.notifyDataSetChanged()
         }
 
-//        adapter.itemClickListener = AdapterView.OnItemClickListener { adapter, view, position, _ ->
-//            val selectedHabit = adapter.getItemAtPosition(position) as Habit
-//            val action = HomeFragmentDirections.actionNavHomeToEditHabitFragment(selectedHabit.habitId)
-//            findNavController().navigate(action)
-//        }
         adapter.itemClickListener = this
 
         val layoutManager = LinearLayoutManager(requireContext())

@@ -22,6 +22,10 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
         habitRepo.insert(habit)
     }
 
+    fun delete(habit: Habit) = viewModelScope.launch {
+        habitRepo.delete(habit)
+    }
+
     suspend fun getById(id: Int): Habit {
         return habitRepo.getByID(id)
     }

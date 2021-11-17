@@ -12,6 +12,7 @@
     <string name="habit">Habit</string>
     <string name="habit_new">New habit</string>
     <string name="habit_edit">Edit habit</string>
+    <string name="habit_delete">Delete habit</string>
     <string name="habit_frequency">Habit frequency</string>
     <string-array name="habit_frequency_options">
         <item>Daily</item>
