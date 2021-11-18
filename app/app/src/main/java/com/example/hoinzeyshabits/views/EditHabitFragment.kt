@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.hoinzeyshabits.HabitsApplication
@@ -12,8 +14,8 @@ import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.databinding.FragmentEditHabitBinding
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.model.HabitFrequency
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
@@ -76,11 +78,7 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.delete_habit -> {
-                runBlocking {
-                    withContext(Dispatchers.IO) {
-                        habitsViewModel.delete(habit)
-                    }
-                }
+                setFragmentResult("deleteHabit", bundleOf(Pair("habitkey", Gson().toJson(habit, Habit::class.java))))
                 findNavController().navigate(R.id.action_editHabitFragment_to_nav_home)
                 true
             }
@@ -104,14 +102,14 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun saveHabit() {
-
         val updatedHabit = habit.copy(
             name = binding.editHabitName.editText?.text.toString(),
             habitFrequency = selectedFrequency,
             habitFrequencyCount = binding.editHabitFrequencyUnit.editText?.text.toString().toInt()
         )
 
-        habitsViewModel.insert(updatedHabit)
+//        habitsViewModel.insert(updatedHabit)
+        setFragmentResult("editHabit", bundleOf(Pair("habitkey", Gson().toJson(updatedHabit, Habit::class.java))))
         findNavController().navigate(R.id.action_editHabitFragment_to_nav_home)
     }
 

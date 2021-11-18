@@ -1,13 +1,13 @@
 package com.example.hoinzeyshabits.views
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -37,9 +37,25 @@ class HomeFragment : Fragment(), RecyclerViewClickListener {
         setFragmentResultListener("newHabit") { requestKey, bundle ->
             val result = Gson().fromJson(bundle.getString("habitkey"), Habit::class.java)
             habitsViewModel.insert(result)
+            Toast.makeText(requireContext(), "Habit created, good luck !", Toast.LENGTH_LONG).show()
+        }
+
+        setFragmentResultListener("editHabit") { requestKey, bundle ->
+            val result = Gson().fromJson(bundle.getString("habitkey"), Habit::class.java)
+            habitsViewModel.insert(result)
+            (binding.habitRecyclerView.adapter as HabitViewAdapter).notifyHabitChange(result)
+            Toast.makeText(requireContext(), "Update successful", Toast.LENGTH_LONG).show()
+        }
+
+        setFragmentResultListener("deleteHabit") { requestKey, bundle ->
+            val result = Gson().fromJson(bundle.getString("habitkey"), Habit::class.java)
+            (binding.habitRecyclerView.adapter as HabitViewAdapter).notifyHabitDelete(result)
+            habitsViewModel.delete(result)
+            Toast.makeText(requireContext(), "Habit deleted", Toast.LENGTH_LONG).show()
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

@@ -1,5 +1,6 @@
 package com.example.hoinzeyshabits.views
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -22,8 +23,10 @@ class HabitViewAdapter ()
         return HabitViewHolder(itemView)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setHabits(habits: List<Habit>) {
         this.habitList = habits
+        notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: HabitViewHolder, position: Int) {
@@ -33,6 +36,14 @@ class HabitViewAdapter ()
 
     override fun getItemCount(): Int {
         return habitList.size
+    }
+
+    fun notifyHabitChange(habit: Habit) {
+        notifyItemChanged(habitList.indexOf(habit))
+    }
+
+    fun notifyHabitDelete(habit: Habit) {
+        notifyItemRemoved(habitList.indexOf(habit))
     }
 
     inner class HabitViewHolder(val habitView: View):RecyclerView.ViewHolder(habitView), View.OnClickListener {
