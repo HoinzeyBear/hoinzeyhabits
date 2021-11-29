@@ -16,11 +16,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.hoinzeyshabits.HabitsApplication
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.RecyclerViewClickListener
+import com.example.hoinzeyshabits.RecyclerViewOnLongClickListener
 import com.example.hoinzeyshabits.databinding.FragmentHomeBinding
 import com.example.hoinzeyshabits.model.Habit
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
-class HomeFragment : Fragment(), RecyclerViewClickListener {
+class HomeFragment : Fragment(),
+    RecyclerViewClickListener,
+    RecyclerViewOnLongClickListener {
 
     private val habitsViewModel: HabitsViewModel by viewModels {
         HabitsViewModelFactory((activity?.application as HabitsApplication).repository)
@@ -37,6 +43,7 @@ class HomeFragment : Fragment(), RecyclerViewClickListener {
         setFragmentResultListener("newHabit") { requestKey, bundle ->
             val result = Gson().fromJson(bundle.getString("habitkey"), Habit::class.java)
             habitsViewModel.insert(result)
+            Log.d("HOME", "I'm on thread ${Thread.currentThread()}")
             Toast.makeText(requireContext(), "Habit created, good luck !", Toast.LENGTH_LONG).show()
         }
 
@@ -44,6 +51,7 @@ class HomeFragment : Fragment(), RecyclerViewClickListener {
             val result = Gson().fromJson(bundle.getString("habitkey"), Habit::class.java)
             habitsViewModel.insert(result)
             (binding.habitRecyclerView.adapter as HabitViewAdapter).notifyHabitChange(result)
+            Log.d("HOME", "I'm on thread ${Thread.currentThread()}")
             Toast.makeText(requireContext(), "Update successful", Toast.LENGTH_LONG).show()
         }
 
@@ -51,6 +59,7 @@ class HomeFragment : Fragment(), RecyclerViewClickListener {
             val result = Gson().fromJson(bundle.getString("habitkey"), Habit::class.java)
             (binding.habitRecyclerView.adapter as HabitViewAdapter).notifyHabitDelete(result)
             habitsViewModel.delete(result)
+            Log.d("HOME", "I'm on thread ${Thread.currentThread()}")
             Toast.makeText(requireContext(), "Habit deleted", Toast.LENGTH_LONG).show()
         }
     }
@@ -78,6 +87,7 @@ class HomeFragment : Fragment(), RecyclerViewClickListener {
         }
 
         adapter.itemClickListener = this
+        adapter.itemLongClickListener = this
 
         val layoutManager = LinearLayoutManager(requireContext())
         layoutManager.orientation = RecyclerView.VERTICAL
@@ -101,5 +111,14 @@ class HomeFragment : Fragment(), RecyclerViewClickListener {
     override fun recyclerViewListClicked(v: View?, id: Int) {
         val action = HomeFragmentDirections.actionNavHomeToEditHabitFragment(id)
         findNavController().navigate(action)
+    }
+
+    override fun recyclerViewListLongClicked(view: View?, id: Int) {
+        //Do stuff with the menu item like multi-delete
+        runBlocking {
+            withContext(Dispatchers.IO){
+                Log.d("HOME", "Selected habit ${habitsViewModel.getById(id)}")
+            }
+        }
     }
 }

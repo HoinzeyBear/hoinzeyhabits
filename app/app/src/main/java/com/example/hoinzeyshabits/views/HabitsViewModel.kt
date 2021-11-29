@@ -1,9 +1,9 @@
 package com.example.hoinzeyshabits.views
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.example.hoinzeyshabits.data.HabitsRepository
 import com.example.hoinzeyshabits.model.Habit
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class HabitsViewModel(private val habitRepo: HabitsRepository)
@@ -19,10 +19,12 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
      * Launching a new coroutine to insert the data in a non-blocking way
      */
     fun insert(habit: Habit) = viewModelScope.launch {
+        Log.d("HVM", "I'm on thread ${Thread.currentThread()}")
         habitRepo.insert(habit)
     }
 
     fun delete(habit: Habit) = viewModelScope.launch {
+        Log.d("HVM", "I'm on thread ${Thread.currentThread()}")
         habitRepo.delete(habit)
     }
 

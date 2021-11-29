@@ -9,13 +9,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.RecyclerViewClickListener
+import com.example.hoinzeyshabits.RecyclerViewOnLongClickListener
 import com.example.hoinzeyshabits.model.Habit
 import kotlin.properties.Delegates
 
-class HabitViewAdapter ()
+class HabitViewAdapter
     : RecyclerView.Adapter<HabitViewAdapter.HabitViewHolder>(){
 
     var itemClickListener: RecyclerViewClickListener? = null
+    var itemLongClickListener: RecyclerViewOnLongClickListener? = null
     private var habitList = listOf<Habit>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HabitViewHolder {
@@ -46,7 +48,9 @@ class HabitViewAdapter ()
         notifyItemRemoved(habitList.indexOf(habit))
     }
 
-    inner class HabitViewHolder(val habitView: View):RecyclerView.ViewHolder(habitView), View.OnClickListener {
+    inner class HabitViewHolder(val habitView: View):RecyclerView.ViewHolder(habitView),
+        View.OnClickListener,
+        View.OnLongClickListener {
 
         var currentPosition by Delegates.notNull<Int>()
         lateinit var habit: Habit
@@ -60,11 +64,18 @@ class HabitViewAdapter ()
             this.currentPosition = position
             this.habit = habit
             habitView.setOnClickListener(this)
+            habitView.setOnLongClickListener(this)
         }
 
         override fun onClick(view: View?) {
             Log.d("ADAPTER", "Clicked on a view")
             itemClickListener?.recyclerViewListClicked(view, habit.habitId)
+        }
+
+        override fun onLongClick(view: View?): Boolean {
+            Log.d("ADAPTER", "Long clicked item at pos $currentPosition")
+            itemLongClickListener?.recyclerViewListLongClicked(view, habit.habitId)
+            return true
         }
     }
 }
