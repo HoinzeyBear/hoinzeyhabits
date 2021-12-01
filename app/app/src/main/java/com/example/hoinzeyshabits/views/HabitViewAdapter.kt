@@ -55,11 +55,22 @@ class HabitViewAdapter
         var currentPosition by Delegates.notNull<Int>()
         lateinit var habit: Habit
         var txv_habitName: TextView? = null
+        var txv_freqCount: TextView? = null
+        var txv_freq: TextView? = null
 
         fun populate(habit: Habit, position: Int) {
             txv_habitName = habitView.findViewById(R.id.txvHabitName)
+            txv_freqCount = habitView.findViewById(R.id.txvFrequencyCount)
+            txv_freq = habitView.findViewById(R.id.txvFrequency)
+
             txv_habitName?.apply {
                 text = habit.name
+            }
+            txv_freqCount?.apply {
+                text = habit.habitFrequencyCount.toString()
+            }
+            txv_freq?.apply {
+                text = habit.habitFrequency.name
             }
             this.currentPosition = position
             this.habit = habit

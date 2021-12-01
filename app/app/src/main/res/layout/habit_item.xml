@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="3dp"
@@ -22,33 +23,39 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:padding="15dp"
-            android:text="Habit Name"
+            android:text="Work out in the shed"
             android:textColor="#353434"
             android:textSize="20sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-<!--        <ImageView-->
-<!--            android:layout_width="22dp"-->
-<!--            android:layout_height="22dp"-->
-<!--            app:srcCompat="@drawable/ic_delete"-->
-<!--            android:id="@+id/imvDelete"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            android:tint="#9e9e9e"-->
-<!--            android:layout_margin="7dp"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/imvPlace" />-->
+        <TextView
+            android:id="@+id/txvFrequencyCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingBottom="4dp"
+            android:textColor="#353434"
+            android:textSize="11sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txvHabitName"
+            tools:text="Once" />
 
-<!--        <ImageView-->
-<!--            android:layout_width="22dp"-->
-<!--            android:layout_height="22dp"-->
-<!--            app:srcCompat="@drawable/ic_make_copy"-->
-<!--            android:id="@+id/imvMakeCopy"-->
-<!--            android:tint="#9e9e9e"-->
-<!--            android:layout_margin="7dp"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/imvPlace"-->
-<!--            app:layout_constraintEnd_toStartOf="@+id/imvDelete" />-->
+        <TextView
+            android:id="@+id/txvFrequency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingBottom="4dp"
+            android:textColor="#353434"
+            android:textSize="11sp"
+            app:layout_constraintStart_toEndOf="@+id/txvFrequencyCount"
+            app:layout_constraintTop_toBottomOf="@+id/txvHabitName"
+            tools:text="Daily" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
