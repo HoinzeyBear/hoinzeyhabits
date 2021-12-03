@@ -13,10 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.hoinzeyshabits.HabitsApplication
-import com.example.hoinzeyshabits.R
-import com.example.hoinzeyshabits.RecyclerViewClickListener
-import com.example.hoinzeyshabits.RecyclerViewOnLongClickListener
+import com.example.hoinzeyshabits.*
 import com.example.hoinzeyshabits.databinding.FragmentHomeBinding
 import com.example.hoinzeyshabits.model.Habit
 import com.google.gson.Gson
@@ -102,7 +99,6 @@ class HomeFragment : Fragment(),
         return root
     }
 
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -114,10 +110,16 @@ class HomeFragment : Fragment(),
     }
 
     override fun recyclerViewListLongClicked(view: View?, id: Int) {
-        //Do stuff with the menu item like multi-delete
         runBlocking {
             withContext(Dispatchers.IO){
                 Log.d("HOME", "Selected habit ${habitsViewModel.getById(id)}")
+            }
+        }
+        val menu = (activity as MainActivity).menu
+        if(menu != null) {
+            val findItem = menu.findItem(R.id.delete_habit_main_menu)
+            if(findItem != null) {
+                findItem.isVisible = findItem.isVisible.not()
             }
         }
     }

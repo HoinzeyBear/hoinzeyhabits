@@ -1,6 +1,7 @@
 package com.example.hoinzeyshabits.views
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.RecyclerViewClickListener
 import com.example.hoinzeyshabits.RecyclerViewOnLongClickListener
+import com.example.hoinzeyshabits.animations.AnimationUtils
 import com.example.hoinzeyshabits.model.Habit
 import kotlin.properties.Delegates
 
@@ -19,6 +21,8 @@ class HabitViewAdapter
     var itemClickListener: RecyclerViewClickListener? = null
     var itemLongClickListener: RecyclerViewOnLongClickListener? = null
     private var habitList = listOf<Habit>()
+    private var multiSelectMode = false
+    private var selectedHabits = mutableListOf<Int>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HabitViewHolder {
         val itemView: View = LayoutInflater.from(parent.context).inflate(R.layout.habit_item, parent, false)
@@ -57,11 +61,13 @@ class HabitViewAdapter
         var txv_habitName: TextView? = null
         var txv_freqCount: TextView? = null
         var txv_freq: TextView? = null
+        var multiSelectView: View? = null
 
         fun populate(habit: Habit, position: Int) {
             txv_habitName = habitView.findViewById(R.id.txvHabitName)
             txv_freqCount = habitView.findViewById(R.id.txvFrequencyCount)
             txv_freq = habitView.findViewById(R.id.txvFrequency)
+            multiSelectView = habitView.findViewById(R.id.multiSelectView)
 
             txv_habitName?.apply {
                 text = habit.name
@@ -72,6 +78,13 @@ class HabitViewAdapter
             txv_freq?.apply {
                 text = habit.habitFrequency.name
             }
+            multiSelectView?.apply {
+                if(multiSelectMode) {
+                    AnimationUtils.animateIntoVisibility(this)
+                } else {
+                    AnimationUtils.animateOutOfVisibility(this)
+                }
+            }
             this.currentPosition = position
             this.habit = habit
             habitView.setOnClickListener(this)
@@ -80,13 +93,49 @@ class HabitViewAdapter
 
         override fun onClick(view: View?) {
             Log.d("ADAPTER", "Clicked on a view")
-            itemClickListener?.recyclerViewListClicked(view, habit.habitId)
+            if(multiSelectMode) {
+                if(selectedHabits.contains(habit.habitId)) {
+                    this.multiSelectView?.setBackgroundColor(R.color.purple_700.toInt())
+                    selectedHabits.remove(habit.habitId)
+                    printSelectedHabits()
+                } else {
+                    this.multiSelectView?.setBackgroundColor(Color.DKGRAY)
+                    selectedHabits.add(habit.habitId)
+                    printSelectedHabits()
+                }
+            } else {
+                itemClickListener?.recyclerViewListClicked(view, habit.habitId)
+            }
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         override fun onLongClick(view: View?): Boolean {
+            if(multiSelectMode) {
+                multiSelectMode = false
+                selectedHabits = mutableListOf()
+                printSelectedHabits()
+            } else {
+                multiSelectMode = true
+                selectedHabits.add(habit.habitId)
+                this.multiSelectView?.apply{
+                    setBackgroundColor(Color.DKGRAY)
+                }
+                printSelectedHabits()
+            }
+            notifyDataSetChanged()
             Log.d("ADAPTER", "Long clicked item at pos $currentPosition")
             itemLongClickListener?.recyclerViewListLongClicked(view, habit.habitId)
             return true
         }
+    }
+
+    fun printSelectedHabits() {
+        Log.d("MULTISELECT", "Selected ${selectedHabits.size}")
+        val stringBuilder = StringBuilder("[")
+        for(id in selectedHabits) {
+            stringBuilder.append("$id,")
+        }
+        stringBuilder.append("]")
+        Log.d("MULTISELECT", stringBuilder.toString())
     }
 }

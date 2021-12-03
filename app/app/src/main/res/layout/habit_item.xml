@@ -16,6 +16,17 @@
         android:layout_height="match_parent"
         android:id="@+id/itemConstraintLayout">
 
+        <View
+            android:id="@+id/multiSelectView"
+            android:layout_height="90dp"
+            android:layout_width="25dp"
+            android:background="@color/purple_700"
+            android:alpha="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+
         <TextView
             android:id="@+id/txvHabitName"
             android:layout_width="0dp"
@@ -26,7 +37,7 @@
             android:text="Work out in the shed"
             android:textColor="#353434"
             android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/multiSelectView"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -39,7 +50,7 @@
             android:paddingBottom="4dp"
             android:textColor="#353434"
             android:textSize="11sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/multiSelectView"
             app:layout_constraintTop_toBottomOf="@+id/txvHabitName"
             tools:text="Once" />
 
