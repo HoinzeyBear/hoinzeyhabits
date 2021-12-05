@@ -2,6 +2,7 @@ package com.example.hoinzeyshabits
 
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -22,6 +23,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.delete_habit_main_menu -> {
+                return false
+            }
+        }
+        return false
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

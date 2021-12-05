@@ -31,6 +31,12 @@ class HabitsRepository(private val habitDao: HabitDao) {
         habitDao.deleteHabit(habit)
     }
 
+    @WorkerThread
+    @Delete
+    suspend fun delete(id: Int) {
+        habitDao.deleteHabit(id)
+    }
+
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun getByID(id: Int): Habit {

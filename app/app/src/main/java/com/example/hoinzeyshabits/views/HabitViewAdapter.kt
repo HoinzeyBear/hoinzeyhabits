@@ -18,11 +18,16 @@ import kotlin.properties.Delegates
 class HabitViewAdapter
     : RecyclerView.Adapter<HabitViewAdapter.HabitViewHolder>(){
 
+    private var habitList = listOf<Habit>()
     var itemClickListener: RecyclerViewClickListener? = null
     var itemLongClickListener: RecyclerViewOnLongClickListener? = null
-    private var habitList = listOf<Habit>()
-    private var multiSelectMode = false
-    private var selectedHabits = mutableListOf<Int>()
+    var multiSelectMode = false
+    @SuppressLint("NotifyDataSetChanged")
+    set(value) {
+        this.notifyDataSetChanged()
+        field = value
+    }
+    var selectedHabits = mutableListOf<Int>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HabitViewHolder {
         val itemView: View = LayoutInflater.from(parent.context).inflate(R.layout.habit_item, parent, false)
@@ -108,7 +113,6 @@ class HabitViewAdapter
             }
         }
 
-        @SuppressLint("NotifyDataSetChanged")
         override fun onLongClick(view: View?): Boolean {
             if(multiSelectMode) {
                 multiSelectMode = false
@@ -122,7 +126,6 @@ class HabitViewAdapter
                 }
                 printSelectedHabits()
             }
-            notifyDataSetChanged()
             Log.d("ADAPTER", "Long clicked item at pos $currentPosition")
             itemLongClickListener?.recyclerViewListLongClicked(view, habit.habitId)
             return true

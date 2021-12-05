@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -36,6 +38,7 @@ class HomeFragment : Fragment(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
 
         setFragmentResultListener("newHabit") { requestKey, bundle ->
             val result = Gson().fromJson(bundle.getString("habitkey"), Habit::class.java)
@@ -58,6 +61,11 @@ class HomeFragment : Fragment(),
             habitsViewModel.delete(result)
             Log.d("HOME", "I'm on thread ${Thread.currentThread()}")
             Toast.makeText(requireContext(), "Habit deleted", Toast.LENGTH_LONG).show()
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            (binding.habitRecyclerView.adapter as HabitViewAdapter).multiSelectMode = false
+            removeDeleteOptionFromToolbar()
         }
     }
 
@@ -93,10 +101,30 @@ class HomeFragment : Fragment(),
         binding.addHabit.setOnClickListener {
             findNavController().navigate(R.id.action_nav_home_to_newHabitFragment)
         }
-
         Log.d("HOME", habitsViewModel.habits.toString())
 
         return root
+    }
+
+
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.delete_habit_main_menu -> {
+                val habitViewAdapter = binding.habitRecyclerView.adapter as HabitViewAdapter
+                val selectedHabits =
+                    habitViewAdapter.selectedHabits
+                Log.d("MAINMENU", "Deleting $selectedHabits")
+                for(id in selectedHabits) {
+                    habitsViewModel.delete(id)
+                }
+                habitViewAdapter.multiSelectMode = false
+                removeDeleteOptionFromToolbar()
+                return true
+            }
+        }
+        return false
     }
 
     override fun onDestroyView() {
@@ -115,6 +143,10 @@ class HomeFragment : Fragment(),
                 Log.d("HOME", "Selected habit ${habitsViewModel.getById(id)}")
             }
         }
+        removeDeleteOptionFromToolbar()
+    }
+
+    private fun removeDeleteOptionFromToolbar() {
         val menu = (activity as MainActivity).menu
         if(menu != null) {
             val findItem = menu.findItem(R.id.delete_habit_main_menu)

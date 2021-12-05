@@ -28,6 +28,11 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
         habitRepo.delete(habit)
     }
 
+    fun delete(id: Int) = viewModelScope.launch {
+        Log.d("HVM", "I'm on thread ${Thread.currentThread()}")
+        habitRepo.delete(id)
+    }
+
     suspend fun getById(id: Int): Habit {
         return habitRepo.getByID(id)
     }
