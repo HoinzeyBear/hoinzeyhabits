@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.hoinzeyshabits.*
 import com.example.hoinzeyshabits.databinding.FragmentHomeBinding
 import com.example.hoinzeyshabits.model.Habit
-import com.google.gson.Gson
+import com.example.hoinzeyshabits.utils.GsonUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -41,22 +41,24 @@ class HomeFragment : Fragment(),
         setHasOptionsMenu(true)
 
         setFragmentResultListener("newHabit") { requestKey, bundle ->
-            val result = Gson().fromJson(bundle.getString("habitkey"), Habit::class.java)
+            val result = GsonUtils.dateTimeGson().fromJson(bundle.getString("habitkey"), Habit::class.java)
             habitsViewModel.insert(result)
             Log.d("HOME", "I'm on thread ${Thread.currentThread()}")
+            Log.d("HOME", "${result.creationDate}")
             Toast.makeText(requireContext(), "Habit created, good luck !", Toast.LENGTH_LONG).show()
         }
 
         setFragmentResultListener("editHabit") { requestKey, bundle ->
-            val result = Gson().fromJson(bundle.getString("habitkey"), Habit::class.java)
+            val result = GsonUtils.dateTimeGson().fromJson(bundle.getString("habitkey"), Habit::class.java)
             habitsViewModel.insert(result)
             (binding.habitRecyclerView.adapter as HabitViewAdapter).notifyHabitChange(result)
             Log.d("HOME", "I'm on thread ${Thread.currentThread()}")
+            Log.d("HOME", "${result.creationDate}")
             Toast.makeText(requireContext(), "Update successful", Toast.LENGTH_LONG).show()
         }
 
         setFragmentResultListener("deleteHabit") { requestKey, bundle ->
-            val result = Gson().fromJson(bundle.getString("habitkey"), Habit::class.java)
+            val result = GsonUtils.dateTimeGson().fromJson(bundle.getString("habitkey"), Habit::class.java)
             (binding.habitRecyclerView.adapter as HabitViewAdapter).notifyHabitDelete(result)
             habitsViewModel.delete(result)
             Log.d("HOME", "I'm on thread ${Thread.currentThread()}")

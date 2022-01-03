@@ -1,26 +1,22 @@
 package com.example.hoinzeyshabits.views
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.hoinzeyshabits.HabitsApplication
-import com.example.hoinzeyshabits.data.HabitDao
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.databinding.FragmentNewHabitBinding
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.model.HabitFrequency
-import com.google.gson.Gson
-import org.joda.time.DateTime
-import kotlin.random.Random
+import com.example.hoinzeyshabits.utils.GsonUtils
 
 /**
  * A simple [Fragment] subclass.
@@ -74,7 +70,7 @@ class NewHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
             habitFrequency = selectedFrequency,
             habitFrequencyCount = binding.newHabitFrequencyUnit.editText?.text.toString().toInt())
 
-        setFragmentResult("newHabit", bundleOf(Pair("habitkey", Gson().toJson(newHabit, Habit::class.java))))
+        setFragmentResult("newHabit", bundleOf(Pair("habitkey", GsonUtils.dateTimeGson().toJson(newHabit, Habit::class.java))))
         findNavController().navigate(R.id.action_newHabitFragment_to_nav_home)
     }
 
