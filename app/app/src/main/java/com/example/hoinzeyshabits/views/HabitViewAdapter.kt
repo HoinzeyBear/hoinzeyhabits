@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.RecyclerViewClickListener
@@ -19,7 +20,9 @@ class HabitViewAdapter
     : RecyclerView.Adapter<HabitViewAdapter.HabitViewHolder>(){
 
     private var habitList = listOf<Habit>()
+    private var achievedHabits = hashSetOf<Int>()
     var itemClickListener: RecyclerViewClickListener? = null
+    var achievedClickListener: RecyclerViewClickListener? = null
     var itemLongClickListener: RecyclerViewOnLongClickListener? = null
     var multiSelectMode = false
     @SuppressLint("NotifyDataSetChanged")
@@ -35,8 +38,9 @@ class HabitViewAdapter
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setHabits(habits: List<Habit>) {
+    fun setHabits(habits: List<Habit>, achievedHabits: HashSet<Int>) {
         this.habitList = habits
+        this.achievedHabits = achievedHabits
         notifyDataSetChanged()
     }
 
@@ -57,22 +61,34 @@ class HabitViewAdapter
         notifyItemRemoved(habitList.indexOf(habit))
     }
 
-    inner class HabitViewHolder(val habitView: View):RecyclerView.ViewHolder(habitView),
-        View.OnClickListener,
-        View.OnLongClickListener {
+    inner class HabitViewHolder(val habitView: View):RecyclerView.ViewHolder(habitView) {
 
         var currentPosition by Delegates.notNull<Int>()
         lateinit var habit: Habit
+        var cstLayout: ConstraintLayout? = null
         var txv_habitName: TextView? = null
         var txv_freqCount: TextView? = null
         var txv_freq: TextView? = null
         var multiSelectView: View? = null
+        var achieved: View? = null
 
         fun populate(habit: Habit, position: Int) {
+            cstLayout = habitView.findViewById(R.id.itemConstraintLayout)
             txv_habitName = habitView.findViewById(R.id.txvHabitName)
             txv_freqCount = habitView.findViewById(R.id.txvFrequencyCount)
             txv_freq = habitView.findViewById(R.id.txvFrequency)
             multiSelectView = habitView.findViewById(R.id.multiSelectView)
+            achieved = habitView.findViewById(R.id.achieved)
+
+            cstLayout?.apply{
+                setOnClickListener { view ->
+                    onClick(view, achievedClickListener, RecyclerViewClickListener.RecyclerViewAction.EDIT)
+                }
+                setOnLongClickListener { view ->
+                    onLongClick(view, itemLongClickListener)
+                    true
+                }
+            }
 
             txv_habitName?.apply {
                 text = habit.name
@@ -90,13 +106,21 @@ class HabitViewAdapter
                     AnimationUtils.animateOutOfVisibility(this)
                 }
             }
+            achieved?.apply {
+                if(achievedHabits.contains(habit.habitId)) {
+                    achieved?.setBackgroundColor(resources.getColor(R.color.red))
+                } else {
+                    achieved?.setBackgroundColor(resources.getColor(R.color.black))
+                }
+                setOnClickListener { view ->
+                    onClick(view, achievedClickListener, RecyclerViewClickListener.RecyclerViewAction.ACHIEVE_GOAL)
+                }
+            }
             this.currentPosition = position
             this.habit = habit
-            habitView.setOnClickListener(this)
-            habitView.setOnLongClickListener(this)
         }
 
-        override fun onClick(view: View?) {
+        fun onClick(view: View?, listener: RecyclerViewClickListener? ,action: RecyclerViewClickListener.RecyclerViewAction) {
             Log.d("ADAPTER", "Clicked on a view")
             if(multiSelectMode) {
                 if(selectedHabits.contains(habit.habitId)) {
@@ -109,11 +133,11 @@ class HabitViewAdapter
                     printSelectedHabits()
                 }
             } else {
-                itemClickListener?.recyclerViewListClicked(view, habit.habitId)
+                listener?.recyclerViewListClicked(view, habit.habitId, action)
             }
         }
 
-        override fun onLongClick(view: View?): Boolean {
+        fun onLongClick(view: View?, listener: RecyclerViewOnLongClickListener?) {
             if(multiSelectMode) {
                 multiSelectMode = false
                 selectedHabits = mutableListOf()
@@ -127,8 +151,7 @@ class HabitViewAdapter
                 printSelectedHabits()
             }
             Log.d("ADAPTER", "Long clicked item at pos $currentPosition")
-            itemLongClickListener?.recyclerViewListLongClicked(view, habit.habitId)
-            return true
+            listener?.recyclerViewListLongClicked(view, habit.habitId)
         }
     }
 

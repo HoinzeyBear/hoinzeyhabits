@@ -4,20 +4,21 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.hoinzeyshabits.model.AchievedHabit
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.model.HabitFrequency
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = arrayOf(Habit::class),
+    entities = arrayOf(Habit::class, AchievedHabit::class),
     version = 1,
     exportSchema = false)
 abstract class AppDatabase: RoomDatabase() {
 
     abstract fun habitDao(): HabitDao
+    abstract fun achievedHabitsDao(): AchievedHabitsDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the

@@ -29,7 +29,7 @@ class NewHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private val binding get() = _binding!!
 
     private val habitsViewModel: HabitsViewModel by viewModels {
-        HabitsViewModelFactory((activity?.application as HabitsApplication).repository)
+        HabitsViewModelFactory((activity?.application as HabitsApplication).habitsRepository)
     }
 
     private var selectedFrequency = HabitFrequency.DAILY

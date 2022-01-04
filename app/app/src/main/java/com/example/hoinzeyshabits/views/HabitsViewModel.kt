@@ -5,11 +5,13 @@ import androidx.lifecycle.*
 import com.example.hoinzeyshabits.data.HabitsRepository
 import com.example.hoinzeyshabits.model.Habit
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.joda.time.DateTime
 
 class HabitsViewModel(private val habitRepo: HabitsRepository)
     : ViewModel() {
 
-    // Using LiveData and caching what allWords returns has several benefits:
+    // Using LiveData and caching what allHabits returns has several benefits:
     // - We can put an observer on the data (instead of polling for changes) and only update the
     //   the UI when the data actually changes.
     // - Repository is completely separated from the UI through the ViewModel
@@ -37,6 +39,20 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
         return habitRepo.getByID(id)
     }
 
+    suspend fun getAchievedHabitsForHabitList(): HashSet<Int> =
+        withContext(viewModelScope.coroutineContext) {
+            makeSet()
+        }
+
+    fun makeSet(): HashSet<Int> {
+        val achievedHabits = hashSetOf<Int>()
+        for(habit in habits.value!!) {
+            if(habitRepo.wasAchievedThisDay(habit.habitId, DateTime())) {
+                achievedHabits.add(habit.habitId)
+            }
+        }
+        return achievedHabits
+    }
 }
 
 class HabitsViewModelFactory(private val repository: HabitsRepository) : ViewModelProvider.Factory {

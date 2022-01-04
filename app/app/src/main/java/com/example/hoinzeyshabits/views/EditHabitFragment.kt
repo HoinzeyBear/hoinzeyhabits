@@ -28,7 +28,7 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var habit: Habit
 
     private val habitsViewModel: HabitsViewModel by viewModels {
-        HabitsViewModelFactory((activity?.application as HabitsApplication).repository)
+        HabitsViewModelFactory((activity?.application as HabitsApplication).habitsRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

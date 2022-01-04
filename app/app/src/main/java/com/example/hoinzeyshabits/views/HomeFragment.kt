@@ -18,23 +18,24 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.hoinzeyshabits.*
 import com.example.hoinzeyshabits.databinding.FragmentHomeBinding
 import com.example.hoinzeyshabits.model.Habit
+import com.example.hoinzeyshabits.utils.Conversion
 import com.example.hoinzeyshabits.utils.GsonUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.joda.time.DateTime
 
-class HomeFragment : Fragment(),
+class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
     RecyclerViewClickListener,
     RecyclerViewOnLongClickListener {
-
-    private val habitsViewModel: HabitsViewModel by viewModels {
-        HabitsViewModelFactory((activity?.application as HabitsApplication).repository)
-    }
-    private var _binding: FragmentHomeBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private val habitsViewModel: HabitsViewModel by viewModels {
+        HabitsViewModelFactory((activity?.application as HabitsApplication).habitsRepository)
+    }
+    private var _binding: FragmentHomeBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +78,7 @@ class HomeFragment : Fragment(),
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d("HOMEFRAGMENT", "Creating the homeFragment View for ${Conversion.ISO8601.print(this.date.withTimeAtStartOfDay())}")
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -89,12 +91,13 @@ class HomeFragment : Fragment(),
         // in the foreground.
         habitsViewModel.habits.observe(viewLifecycleOwner) { habits ->
             // Update the cached copy of the words in the adapter.
-            habits.let { adapter.setHabits(it) }
+            habits.let { adapter.setHabits(it, hashSetOf()) }
             adapter.notifyDataSetChanged()
         }
 
         adapter.itemClickListener = this
         adapter.itemLongClickListener = this
+        adapter.achievedClickListener = this
 
         val layoutManager = LinearLayoutManager(requireContext())
         layoutManager.orientation = RecyclerView.VERTICAL
@@ -134,9 +137,17 @@ class HomeFragment : Fragment(),
         _binding = null
     }
 
-    override fun recyclerViewListClicked(v: View?, id: Int) {
-        val action = HomeFragmentDirections.actionNavHomeToEditHabitFragment(id)
-        findNavController().navigate(action)
+    override fun recyclerViewListClicked(v: View?, id: Int, action: RecyclerViewClickListener.RecyclerViewAction) {
+        when(action) {
+            RecyclerViewClickListener.RecyclerViewAction.EDIT -> {
+                Log.d("HOME", "Selected habit $id to view")
+                val destination = HomeFragmentDirections.actionNavHomeToEditHabitFragment(id)
+                findNavController().navigate(destination)
+            }
+            RecyclerViewClickListener.RecyclerViewAction.ACHIEVE_GOAL -> {
+                Log.d("HOME", "Selected habit $id to achieve")
+            }
+        }
     }
 
     override fun recyclerViewListLongClicked(view: View?, id: Int) {
