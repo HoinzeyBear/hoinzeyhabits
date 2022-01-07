@@ -11,9 +11,6 @@ interface HabitDao {
     suspend fun insert(habit: Habit)
 
     @Query("SELECT * from habits order by habitid asc")
-    suspend fun getAllHabitsInOrder(): List<Habit>
-
-    @Query("SELECT * from habits order by habitid asc")
     fun getAllHabitsInOrderAsFlow(): Flow<List<Habit>>
 
     @Query("SELECT * from habits where habitid=:id")

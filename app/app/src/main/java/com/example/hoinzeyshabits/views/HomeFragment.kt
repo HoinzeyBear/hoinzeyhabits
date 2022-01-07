@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.hoinzeyshabits.*
 import com.example.hoinzeyshabits.databinding.FragmentHomeBinding
+import com.example.hoinzeyshabits.model.AchievedHabit
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.utils.Conversion
 import com.example.hoinzeyshabits.utils.GsonUtils
@@ -90,8 +91,7 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
         // The onChanged() method fires when the observed data changes and the activity is
         // in the foreground.
         habitsViewModel.habits.observe(viewLifecycleOwner) { habits ->
-            // Update the cached copy of the words in the adapter.
-            habits.let { adapter.setHabits(it, hashSetOf()) }
+            adapter.setHabits(habits,getAchievedHabits())
             adapter.notifyDataSetChanged()
         }
 
@@ -111,7 +111,13 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
         return root
     }
 
-
+    fun getAchievedHabits(): HashSet<Int> {
+        return runBlocking {
+            withContext(Dispatchers.IO){
+               habitsViewModel.makeSet()
+            }
+        }
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -145,7 +151,11 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
                 findNavController().navigate(destination)
             }
             RecyclerViewClickListener.RecyclerViewAction.ACHIEVE_GOAL -> {
-                Log.d("HOME", "Selected habit $id to achieve")
+//                if(habitsViewModel.ac) {
+//                  todo design this shit for fuck sake
+//                }
+                habitsViewModel.insert(AchievedHabit(id, DateTime.now().withTimeAtStartOfDay()))
+                Log.d("HOME", "Selected habit $id to achieve for ${DateTime.now().withTimeAtStartOfDay()}")
             }
         }
     }

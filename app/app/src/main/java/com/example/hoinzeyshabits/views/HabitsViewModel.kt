@@ -3,9 +3,9 @@ package com.example.hoinzeyshabits.views
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.hoinzeyshabits.data.HabitsRepository
+import com.example.hoinzeyshabits.model.AchievedHabit
 import com.example.hoinzeyshabits.model.Habit
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.joda.time.DateTime
 
 class HabitsViewModel(private val habitRepo: HabitsRepository)
@@ -35,14 +35,19 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
         habitRepo.delete(id)
     }
 
+    fun insert(achievedHabit: AchievedHabit) = viewModelScope.launch {
+        Log.d("HVM", "I'm on thread ${Thread.currentThread()}")
+        habitRepo.achieveHabit(achievedHabit)
+    }
+
     suspend fun getById(id: Int): Habit {
         return habitRepo.getByID(id)
     }
 
-    suspend fun getAchievedHabitsForHabitList(): HashSet<Int> =
-        withContext(viewModelScope.coroutineContext) {
-            makeSet()
-        }
+//    suspend fun getAchievedHabitsForHabitList(): HashSet<Int> =
+//        withContext(viewModelScope.coroutineContext) {
+//            makeSet()
+//        }
 
     fun makeSet(): HashSet<Int> {
         val achievedHabits = hashSetOf<Int>()
@@ -54,6 +59,8 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
         return achievedHabits
     }
 }
+
+data class HabitForDisplay(val habit: Habit, val achieved: Boolean)
 
 class HabitsViewModelFactory(private val repository: HabitsRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

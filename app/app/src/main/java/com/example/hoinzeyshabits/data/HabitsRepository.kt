@@ -4,6 +4,7 @@ import androidx.annotation.WorkerThread
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import com.example.hoinzeyshabits.model.AchievedHabit
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.utils.Conversion
 import kotlinx.coroutines.flow.Flow
@@ -45,6 +46,13 @@ class HabitsRepository(
     @WorkerThread
     suspend fun getByID(id: Int): Habit {
         return habitDao.getById(id)
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun achieveHabit(achievedHabit: AchievedHabit) {
+        achievedHabitsDao.insert(achievedHabit)
     }
 
     fun wasAchievedThisDay(habitId: Int, date: DateTime): Boolean {
