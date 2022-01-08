@@ -13,14 +13,12 @@ import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.RecyclerViewClickListener
 import com.example.hoinzeyshabits.RecyclerViewOnLongClickListener
 import com.example.hoinzeyshabits.animations.AnimationUtils
-import com.example.hoinzeyshabits.model.Habit
 import kotlin.properties.Delegates
 
 class HabitViewAdapter
     : RecyclerView.Adapter<HabitViewAdapter.HabitViewHolder>(){
 
-    private var habitList = listOf<Habit>()
-    private var achievedHabits = hashSetOf<Int>()
+    private var habitList = listOf<HabitForDisplay>()
     var itemClickListener: RecyclerViewClickListener? = null
     var achievedClickListener: RecyclerViewClickListener? = null
     var itemLongClickListener: RecyclerViewOnLongClickListener? = null
@@ -38,9 +36,8 @@ class HabitViewAdapter
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setHabits(habits: List<Habit>, achievedHabits: HashSet<Int>) {
+    fun setHabits(habits: List<HabitForDisplay>) {
         this.habitList = habits
-        this.achievedHabits = achievedHabits
         notifyDataSetChanged()
     }
 
@@ -53,18 +50,18 @@ class HabitViewAdapter
         return habitList.size
     }
 
-    fun notifyHabitChange(habit: Habit) {
-        notifyItemChanged(habitList.indexOf(habit))
+    fun notifyHabitChange(habitId: Int) {
+        notifyItemChanged(habitList.indexOfFirst { habit -> habit.habitId == habitId })
     }
 
-    fun notifyHabitDelete(habit: Habit) {
-        notifyItemRemoved(habitList.indexOf(habit))
+    fun notifyHabitDelete(habitId: Int) {
+        notifyItemRemoved(habitList.indexOfFirst { habit -> habit.habitId == habitId })
     }
 
     inner class HabitViewHolder(val habitView: View):RecyclerView.ViewHolder(habitView) {
 
         var currentPosition by Delegates.notNull<Int>()
-        lateinit var habit: Habit
+        lateinit var habit: HabitForDisplay
         var cstLayout: ConstraintLayout? = null
         var txv_habitName: TextView? = null
         var txv_freqCount: TextView? = null
@@ -72,7 +69,7 @@ class HabitViewAdapter
         var multiSelectView: View? = null
         var achieved: View? = null
 
-        fun populate(habit: Habit, position: Int) {
+        fun populate(habit: HabitForDisplay, position: Int) {
             cstLayout = habitView.findViewById(R.id.itemConstraintLayout)
             txv_habitName = habitView.findViewById(R.id.txvHabitName)
             txv_freqCount = habitView.findViewById(R.id.txvFrequencyCount)
@@ -107,7 +104,7 @@ class HabitViewAdapter
                 }
             }
             achieved?.apply {
-                if(achievedHabits.contains(habit.habitId)) {
+                if(habit.achieved) {
                     achieved?.setBackgroundColor(resources.getColor(R.color.red))
                 } else {
                     achieved?.setBackgroundColor(resources.getColor(R.color.black))

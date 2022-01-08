@@ -20,4 +20,5 @@ data class AchievedHabit(
     var habitId: Int = 0,
     @ColumnInfo(name = "achieveddate")
     val achievedDate: DateTime,
+    val achieved: Boolean = false
 )

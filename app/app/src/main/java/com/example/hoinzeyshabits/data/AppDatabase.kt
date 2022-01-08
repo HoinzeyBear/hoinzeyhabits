@@ -10,6 +10,7 @@ import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.model.HabitFrequency
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.joda.time.DateTime
 
 @Database(
     entities = arrayOf(Habit::class, AchievedHabit::class),
@@ -51,18 +52,17 @@ abstract class AppDatabase: RoomDatabase() {
             super.onCreate(db)
             INSTANCE?.let { database ->
                 scope.launch {
-                    populateDatabase(database.habitDao())
+                    populateDatabase(database.habitDao(), database.achievedHabitsDao())
                 }
             }
         }
 
-        suspend fun populateDatabase(habitDao: HabitDao) {
-            // Delete all content here.
+        suspend fun populateDatabase(habitDao: HabitDao, achievedHabitsDao: AchievedHabitsDao) {
             habitDao.deleteAllHabits()
 
-            // Add sample habits.
             val habit = Habit(name = "Good nights sleep",habitFrequency = HabitFrequency.DAILY)
-            habitDao.insert(habit)
+            val habitId = habitDao.insert(habit)
+            achievedHabitsDao.insert(AchievedHabit(habitId.toInt(), DateTime.now().withTimeAtStartOfDay(),false))
         }
     }
 }

@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import com.example.hoinzeyshabits.model.AchievedHabit
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.utils.Conversion
+import com.example.hoinzeyshabits.views.HabitForDisplay
 import kotlinx.coroutines.flow.Flow
 import org.joda.time.DateTime
 
@@ -26,8 +27,8 @@ class HabitsRepository(
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(habit: Habit) {
-        habitDao.insert(habit)
+    suspend fun insert(habit: Habit): Long {
+        return habitDao.insert(habit)
     }
 
     @WorkerThread
@@ -48,10 +49,14 @@ class HabitsRepository(
         return habitDao.getById(id)
     }
 
+    suspend fun getHabitsForDisplay(date: DateTime): List<HabitForDisplay> {
+        return habitDao.getHabitsToDisplayForDate(Conversion.getFormattedStartTime(date), Conversion.getFormattedEndTime(date))
+    }
+
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun achieveHabit(achievedHabit: AchievedHabit) {
+    suspend fun insertAchieveHabit(achievedHabit: AchievedHabit) {
         achievedHabitsDao.insert(achievedHabit)
     }
 
@@ -62,6 +67,6 @@ class HabitsRepository(
         return achievedHabitsDao.wasHabitAchievedThisDay(
             habitId,
             Conversion.getFormattedStartTime(date),
-            Conversion.getFormattedEndTime(date)) > 0
+            Conversion.getFormattedEndTime(date))
     }
 }

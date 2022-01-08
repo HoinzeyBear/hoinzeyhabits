@@ -12,6 +12,6 @@ interface AchievedHabitsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(habit: AchievedHabit)
 
-    @Query("SELECT count(*) from achievedhabits where habitid=:id and achieveddate between :dateStart and :dateEnd")
-    fun wasHabitAchievedThisDay(id:Int, dateStart: String, dateEnd: String): Int
+    @Query("SELECT achieved from achievedhabits where habitid=:id and achieveddate between :dateStart and :dateEnd")
+    fun wasHabitAchievedThisDay(id:Int, dateStart: String, dateEnd: String): Boolean
 }

@@ -2,6 +2,8 @@ package com.example.hoinzeyshabits.views
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -53,7 +55,7 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
         setFragmentResultListener("editHabit") { requestKey, bundle ->
             val result = GsonUtils.dateTimeGson().fromJson(bundle.getString("habitkey"), Habit::class.java)
             habitsViewModel.insert(result)
-            (binding.habitRecyclerView.adapter as HabitViewAdapter).notifyHabitChange(result)
+            (binding.habitRecyclerView.adapter as HabitViewAdapter).notifyHabitChange(result.habitId)
             Log.d("HOME", "I'm on thread ${Thread.currentThread()}")
             Log.d("HOME", "${result.creationDate}")
             Toast.makeText(requireContext(), "Update successful", Toast.LENGTH_LONG).show()
@@ -61,7 +63,7 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
 
         setFragmentResultListener("deleteHabit") { requestKey, bundle ->
             val result = GsonUtils.dateTimeGson().fromJson(bundle.getString("habitkey"), Habit::class.java)
-            (binding.habitRecyclerView.adapter as HabitViewAdapter).notifyHabitDelete(result)
+            (binding.habitRecyclerView.adapter as HabitViewAdapter).notifyHabitDelete(result.habitId)
             habitsViewModel.delete(result)
             Log.d("HOME", "I'm on thread ${Thread.currentThread()}")
             Toast.makeText(requireContext(), "Habit deleted", Toast.LENGTH_LONG).show()
@@ -90,10 +92,12 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
         // Add an observer on the LiveData returned by getAlphabetizedWords.
         // The onChanged() method fires when the observed data changes and the activity is
         // in the foreground.
-        habitsViewModel.habits.observe(viewLifecycleOwner) { habits ->
-            adapter.setHabits(habits,getAchievedHabits())
-            adapter.notifyDataSetChanged()
+        habitsViewModel.habits.observe(viewLifecycleOwner) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                refreshAdaptersHabits(adapter) },200)
         }
+
+        habitsViewModel.printHabitsForDisplay()
 
         adapter.itemClickListener = this
         adapter.itemLongClickListener = this
@@ -106,15 +110,32 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
         binding.addHabit.setOnClickListener {
             findNavController().navigate(R.id.action_nav_home_to_newHabitFragment)
         }
-        Log.d("HOME", habitsViewModel.habits.toString())
 
+        binding.previousDate.setOnClickListener {
+            habitsViewModel.targetDate = habitsViewModel.targetDate.minusDays(1)
+            refreshAdaptersHabits(binding.habitRecyclerView.adapter as HabitViewAdapter)
+            Log.d("MAINMENU", "Moving to previous date ${Conversion.ISO8601.print(habitsViewModel.targetDate)}")
+        }
+
+        binding.nextDate.setOnClickListener {
+            habitsViewModel.targetDate = habitsViewModel.targetDate.plusDays(1)
+            refreshAdaptersHabits(binding.habitRecyclerView.adapter as HabitViewAdapter)
+            Log.d("MAINMENU", "Moving to next date ${Conversion.ISO8601.print(habitsViewModel.targetDate)}")
+        }
+
+        Log.d("HOME", habitsViewModel.habits.toString())
         return root
     }
 
-    fun getAchievedHabits(): HashSet<Int> {
-        return runBlocking {
-            withContext(Dispatchers.IO){
-               habitsViewModel.makeSet()
+    fun refreshAdaptersHabits(adapter: HabitViewAdapter) {
+        with(adapter) {
+            runBlocking {
+                var habitsToDisplay: List<HabitForDisplay> = listOf()
+                withContext(Dispatchers.IO){
+                    habitsToDisplay = habitsViewModel.getHabitsToDisplay()
+                }
+                setHabits(habitsToDisplay)
+                notifyDataSetChanged()
             }
         }
     }
@@ -151,10 +172,9 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
                 findNavController().navigate(destination)
             }
             RecyclerViewClickListener.RecyclerViewAction.ACHIEVE_GOAL -> {
-//                if(habitsViewModel.ac) {
-//                  todo design this shit for fuck sake
-//                }
-                habitsViewModel.insert(AchievedHabit(id, DateTime.now().withTimeAtStartOfDay()))
+                val markAsAchieved = !habitsViewModel.habitsForDisplay?.first { it -> it.habitId == id }!!.achieved
+                habitsViewModel.insert(AchievedHabit(id, habitsViewModel.targetDate.withTimeAtStartOfDay(), markAsAchieved))
+                refreshAdaptersHabits(binding.habitRecyclerView.adapter as HabitViewAdapter)
                 Log.d("HOME", "Selected habit $id to achieve for ${DateTime.now().withTimeAtStartOfDay()}")
             }
         }

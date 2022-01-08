@@ -13,7 +13,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/previousDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Left"
@@ -26,12 +26,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="TextView"
-            app:layout_constraintEnd_toStartOf="@+id/button2"
-            app:layout_constraintStart_toEndOf="@+id/button"
+            app:layout_constraintEnd_toStartOf="@+id/nextDate"
+            app:layout_constraintStart_toEndOf="@+id/previousDate"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/nextDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Right"
