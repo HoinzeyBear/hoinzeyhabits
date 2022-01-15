@@ -6,10 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import com.example.hoinzeyshabits.model.AchievedHabit
 import com.example.hoinzeyshabits.model.Habit
-import com.example.hoinzeyshabits.utils.Conversion
-import com.example.hoinzeyshabits.views.HabitForDisplay
+import com.example.hoinzeyshabits.model.pojo.HabitsWithAchievedDates
 import kotlinx.coroutines.flow.Flow
-import org.joda.time.DateTime
 
 // Declares the DAO as a private property in the constructor. Pass in the DAO
 // instead of the whole database, because you only need access to the DAO
@@ -19,7 +17,8 @@ class HabitsRepository(
 
     // Room executes all queries on a separate thread.
     // Observed Flow will notify the observer when the data has changed.
-    val allHabits: Flow<List<Habit>> = habitDao.getAllHabitsInOrderAsFlow()
+//    val allHabits: Flow<List<Habit>> = habitDao.getAllHabitsInOrderAsFlow()
+    val allHabitsWithDates: Flow<List<HabitsWithAchievedDates>> = habitDao.getAllHabitsWithDatesInOrderAsFlow()
 
     // By default Room runs suspend queries off the main thread, therefore, we don't need to
     // implement anything else to ensure we're not doing long running database work
@@ -49,24 +48,10 @@ class HabitsRepository(
         return habitDao.getById(id)
     }
 
-    suspend fun getHabitsForDisplay(date: DateTime): List<HabitForDisplay> {
-        return habitDao.getHabitsToDisplayForDate(Conversion.getFormattedStartTime(date), Conversion.getFormattedEndTime(date))
-    }
-
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAchieveHabit(achievedHabit: AchievedHabit) {
         achievedHabitsDao.insert(achievedHabit)
-    }
-
-    fun wasAchievedThisDay(habitId: Int, date: DateTime): Boolean {
-        println("Checking habit $habitId successful between " +
-                "${Conversion.getFormattedStartTime(date)} and ${Conversion.getFormattedEndTime(date)}")
-
-        return achievedHabitsDao.wasHabitAchievedThisDay(
-            habitId,
-            Conversion.getFormattedStartTime(date),
-            Conversion.getFormattedEndTime(date))
     }
 }

@@ -2,7 +2,7 @@ package com.example.hoinzeyshabits.data
 
 import androidx.room.*
 import com.example.hoinzeyshabits.model.Habit
-import com.example.hoinzeyshabits.views.HabitForDisplay
+import com.example.hoinzeyshabits.model.pojo.HabitsWithAchievedDates
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -13,6 +13,9 @@ interface HabitDao {
 
     @Query("SELECT * from habits order by habitid asc")
     fun getAllHabitsInOrderAsFlow(): Flow<List<Habit>>
+
+    @Query("SELECT * from habits order by habitid asc")
+    fun getAllHabitsWithDatesInOrderAsFlow(): Flow<List<HabitsWithAchievedDates>>
 
     @Query("SELECT * from habits where habitid=:id")
     fun getById(id: Int): Habit
@@ -25,7 +28,4 @@ interface HabitDao {
 
     @Query("DELETE from habits")
     suspend fun deleteAllHabits()
-
-    @Query("SELECT habitid,name,habitFrequency,habitFrequencyCount,creationDate,achieved FROM habits inner join achievedhabits using (habitid) where achieveddate between :dateStart and :dateEnd order by habitid asc")
-    suspend fun getHabitsToDisplayForDate(dateStart: String, dateEnd: String): List<HabitForDisplay>
 }

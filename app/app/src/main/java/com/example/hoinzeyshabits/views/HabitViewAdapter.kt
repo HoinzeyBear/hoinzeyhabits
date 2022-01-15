@@ -13,12 +13,15 @@ import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.RecyclerViewClickListener
 import com.example.hoinzeyshabits.RecyclerViewOnLongClickListener
 import com.example.hoinzeyshabits.animations.AnimationUtils
+import com.example.hoinzeyshabits.model.pojo.HabitsWithAchievedDates
+import org.joda.time.DateTime
 import kotlin.properties.Delegates
 
 class HabitViewAdapter
     : RecyclerView.Adapter<HabitViewAdapter.HabitViewHolder>(){
 
-    private var habitList = listOf<HabitForDisplay>()
+    private var habitList = listOf<HabitsWithAchievedDates>()
+    lateinit var targetDate: DateTime
     var itemClickListener: RecyclerViewClickListener? = null
     var achievedClickListener: RecyclerViewClickListener? = null
     var itemLongClickListener: RecyclerViewOnLongClickListener? = null
@@ -36,8 +39,9 @@ class HabitViewAdapter
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setHabits(habits: List<HabitForDisplay>) {
+    fun setHabits(habits: List<HabitsWithAchievedDates>, date: DateTime) {
         this.habitList = habits
+        this.targetDate = date
         notifyDataSetChanged()
     }
 
@@ -51,17 +55,17 @@ class HabitViewAdapter
     }
 
     fun notifyHabitChange(habitId: Int) {
-        notifyItemChanged(habitList.indexOfFirst { habit -> habit.habitId == habitId })
+        notifyItemChanged(habitList.indexOfFirst { habit -> habit.habit?.habitId == habitId })
     }
 
     fun notifyHabitDelete(habitId: Int) {
-        notifyItemRemoved(habitList.indexOfFirst { habit -> habit.habitId == habitId })
+        notifyItemRemoved(habitList.indexOfFirst { habit -> habit.habit?.habitId == habitId })
     }
 
     inner class HabitViewHolder(val habitView: View):RecyclerView.ViewHolder(habitView) {
 
         var currentPosition by Delegates.notNull<Int>()
-        lateinit var habit: HabitForDisplay
+        lateinit var habit: HabitsWithAchievedDates
         var cstLayout: ConstraintLayout? = null
         var txv_habitName: TextView? = null
         var txv_freqCount: TextView? = null
@@ -69,7 +73,7 @@ class HabitViewAdapter
         var multiSelectView: View? = null
         var achieved: View? = null
 
-        fun populate(habit: HabitForDisplay, position: Int) {
+        fun populate(habit: HabitsWithAchievedDates, position: Int) {
             cstLayout = habitView.findViewById(R.id.itemConstraintLayout)
             txv_habitName = habitView.findViewById(R.id.txvHabitName)
             txv_freqCount = habitView.findViewById(R.id.txvFrequencyCount)
@@ -88,13 +92,13 @@ class HabitViewAdapter
             }
 
             txv_habitName?.apply {
-                text = habit.name
+                text = habit.habit?.name
             }
             txv_freqCount?.apply {
-                text = habit.habitFrequencyCount.toString()
+                text = habit.habit?.habitFrequencyCount.toString()
             }
             txv_freq?.apply {
-                text = habit.habitFrequency.name
+                text = habit.habit?.habitFrequency?.name
             }
             multiSelectView?.apply {
                 if(multiSelectMode) {
@@ -104,7 +108,7 @@ class HabitViewAdapter
                 }
             }
             achieved?.apply {
-                if(habit.achieved) {
+                if(habit.achievedOnDate(targetDate)) {
                     achieved?.setBackgroundColor(resources.getColor(R.color.red))
                 } else {
                     achieved?.setBackgroundColor(resources.getColor(R.color.black))
@@ -120,17 +124,17 @@ class HabitViewAdapter
         fun onClick(view: View?, listener: RecyclerViewClickListener? ,action: RecyclerViewClickListener.RecyclerViewAction) {
             Log.d("ADAPTER", "Clicked on a view")
             if(multiSelectMode) {
-                if(selectedHabits.contains(habit.habitId)) {
+                if(selectedHabits.contains(habit.habit?.habitId)) {
                     this.multiSelectView?.setBackgroundColor(R.color.purple_700.toInt())
-                    selectedHabits.remove(habit.habitId)
+                    selectedHabits.remove(habit.habit?.habitId)
                     printSelectedHabits()
                 } else {
                     this.multiSelectView?.setBackgroundColor(Color.DKGRAY)
-                    selectedHabits.add(habit.habitId)
+                    selectedHabits.add(habit.habit!!.habitId)
                     printSelectedHabits()
                 }
             } else {
-                listener?.recyclerViewListClicked(view, habit.habitId, action)
+                listener?.recyclerViewListClicked(view, habit.habit!!.habitId, action)
             }
         }
 
@@ -141,14 +145,14 @@ class HabitViewAdapter
                 printSelectedHabits()
             } else {
                 multiSelectMode = true
-                selectedHabits.add(habit.habitId)
+                selectedHabits.add(habit.habit!!.habitId)
                 this.multiSelectView?.apply{
                     setBackgroundColor(Color.DKGRAY)
                 }
                 printSelectedHabits()
             }
             Log.d("ADAPTER", "Long clicked item at pos $currentPosition")
-            listener?.recyclerViewListLongClicked(view, habit.habitId)
+            listener?.recyclerViewListLongClicked(view, habit.habit!!.habitId)
         }
     }
 

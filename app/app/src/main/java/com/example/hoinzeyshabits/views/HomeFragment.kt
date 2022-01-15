@@ -2,8 +2,6 @@ package com.example.hoinzeyshabits.views
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -93,8 +91,8 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
         // The onChanged() method fires when the observed data changes and the activity is
         // in the foreground.
         habitsViewModel.habits.observe(viewLifecycleOwner) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                refreshAdaptersHabits(adapter) },200)
+            adapter.setHabits(it, habitsViewModel.targetDate)
+            adapter.notifyDataSetChanged()
         }
 
         habitsViewModel.printHabitsForDisplay()
@@ -127,16 +125,11 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
         return root
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun refreshAdaptersHabits(adapter: HabitViewAdapter) {
         with(adapter) {
-            runBlocking {
-                var habitsToDisplay: List<HabitForDisplay> = listOf()
-                withContext(Dispatchers.IO){
-                    habitsToDisplay = habitsViewModel.getHabitsToDisplay()
-                }
-                setHabits(habitsToDisplay)
-                notifyDataSetChanged()
-            }
+            adapter.targetDate = habitsViewModel.targetDate
+            adapter.notifyDataSetChanged()
         }
     }
 
@@ -172,7 +165,9 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
                 findNavController().navigate(destination)
             }
             RecyclerViewClickListener.RecyclerViewAction.ACHIEVE_GOAL -> {
-                val markAsAchieved = !habitsViewModel.habitsForDisplay?.first { it -> it.habitId == id }!!.achieved
+                val markAsAchieved = !habitsViewModel.habits.value?.first { it ->
+                    it.habit?.habitId == id }!!.achievedOnDate(habitsViewModel.targetDate)
+
                 habitsViewModel.insert(AchievedHabit(id, habitsViewModel.targetDate.withTimeAtStartOfDay(), markAsAchieved))
                 refreshAdaptersHabits(binding.habitRecyclerView.adapter as HabitViewAdapter)
                 Log.d("HOME", "Selected habit $id to achieve for ${DateTime.now().withTimeAtStartOfDay()}")
