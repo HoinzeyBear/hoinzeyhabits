@@ -15,7 +15,8 @@ data class Habit(
     val name: String,
     val habitFrequency: HabitFrequency,
     val habitFrequencyCount: Int = 1,
-    val creationDate: DateTime = DateTime()
+    val creationDate: DateTime = DateTime(),
+    val currentStreak: Int = 0
 )
 
 enum class HabitFrequency{

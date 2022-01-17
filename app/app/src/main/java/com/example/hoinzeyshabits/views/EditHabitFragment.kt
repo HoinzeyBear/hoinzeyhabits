@@ -8,6 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.hoinzeyshabits.HabitsApplication
 import com.example.hoinzeyshabits.R
@@ -16,7 +17,7 @@ import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.model.HabitFrequency
 import com.example.hoinzeyshabits.utils.GsonUtils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
@@ -43,8 +44,8 @@ class EditHabitFragment : Fragment(), AdapterView.OnItemSelectedListener {
         _binding = FragmentEditHabitBinding.inflate(inflater)
 
         val habitId = EditHabitFragmentArgs.fromBundle(requireArguments()).habitId
-        habit = runBlocking {
-            withContext(Dispatchers.IO) {
+        lifecycleScope.launch {
+            habit = withContext(Dispatchers.IO) {
                 habitsViewModel.getById(habitId);
             }
         }

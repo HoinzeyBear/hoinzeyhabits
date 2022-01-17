@@ -18,6 +18,7 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
     // - Repository is completely separated from the UI through the ViewModel
     val habits: LiveData<List<HabitsWithAchievedDates>> = habitRepo.allHabitsWithDates.asLiveData()
     var targetDate: DateTime = DateTime.now().withTimeAtStartOfDay()
+//    var today: DateTime = DateTime.now().withTimeAtStartOfDay()
 
     fun printHabitsForDisplay() = viewModelScope.launch {
         Log.d("HVM", "$habits")

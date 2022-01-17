@@ -12,6 +12,7 @@ import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +23,7 @@ import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.utils.Conversion
 import com.example.hoinzeyshabits.utils.GsonUtils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.joda.time.DateTime
 
@@ -165,22 +166,28 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
                 findNavController().navigate(destination)
             }
             RecyclerViewClickListener.RecyclerViewAction.ACHIEVE_GOAL -> {
-                val markAsAchieved = !habitsViewModel.habits.value?.first { it ->
-                    it.habit?.habitId == id }!!.achievedOnDate(habitsViewModel.targetDate)
+                if(habitsViewModel.targetDate.isAfterNow) {
+                    Toast.makeText(activity, R.string.cant_achieve_in_future, Toast.LENGTH_LONG)
+                        .show()
+                } else {
+                    val markAsAchieved = !habitsViewModel.habits.value?.first { it ->
+                        it.habit?.habitId == id }!!.achievedOnDate(habitsViewModel.targetDate)
 
-                habitsViewModel.insert(AchievedHabit(id, habitsViewModel.targetDate.withTimeAtStartOfDay(), markAsAchieved))
-                refreshAdaptersHabits(binding.habitRecyclerView.adapter as HabitViewAdapter)
-                Log.d("HOME", "Selected habit $id to achieve for ${DateTime.now().withTimeAtStartOfDay()}")
+                    habitsViewModel.insert(AchievedHabit(id, habitsViewModel.targetDate.withTimeAtStartOfDay(), markAsAchieved))
+                    refreshAdaptersHabits(binding.habitRecyclerView.adapter as HabitViewAdapter)
+                    Log.d("HOME", "Selected habit $id to achieve for ${DateTime.now().withTimeAtStartOfDay()}")
+                }
             }
         }
     }
 
     override fun recyclerViewListLongClicked(view: View?, id: Int) {
-        runBlocking {
-            withContext(Dispatchers.IO){
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
                 Log.d("HOME", "Selected habit ${habitsViewModel.getById(id)}")
             }
         }
+
         removeDeleteOptionFromToolbar()
     }
 
