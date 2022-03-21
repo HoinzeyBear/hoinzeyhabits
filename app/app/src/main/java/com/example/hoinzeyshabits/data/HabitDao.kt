@@ -14,6 +14,7 @@ interface HabitDao {
     @Query("SELECT * from habits order by habitid asc")
     fun getAllHabitsInOrderAsFlow(): Flow<List<Habit>>
 
+    @Transaction
     @Query("SELECT * from habits order by habitid asc")
     fun getAllHabitsWithDatesInOrderAsFlow(): Flow<List<HabitsWithAchievedDates>>
 
@@ -27,5 +28,5 @@ interface HabitDao {
     suspend fun deleteHabit(habit: Habit)
 
     @Query("DELETE from habits")
-    suspend fun deleteAllHabits()
+    suspend fun deleteAllHabits(): Int
 }
