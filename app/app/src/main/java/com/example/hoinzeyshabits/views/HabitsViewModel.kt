@@ -5,7 +5,10 @@ import androidx.lifecycle.*
 import com.example.hoinzeyshabits.data.HabitsRepository
 import com.example.hoinzeyshabits.model.AchievedHabit
 import com.example.hoinzeyshabits.model.Habit
+import com.example.hoinzeyshabits.model.HabitFrequency
 import com.example.hoinzeyshabits.model.pojo.HabitsWithAchievedDates
+import com.example.hoinzeyshabits.views.composables.NewHabitState
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.joda.time.DateTime
 
@@ -20,8 +23,18 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
     var targetDate: DateTime = DateTime.now().withTimeAtStartOfDay()
 //    var today: DateTime = DateTime.now().withTimeAtStartOfDay()
 
+    val newHabitState  by lazy{
+        MutableStateFlow(NewHabitState())
+    }
+
     fun printHabitsForDisplay() = viewModelScope.launch {
         Log.d("HVM", "$habits")
+    }
+
+    fun saveHabit() {
+        val newHabit = Habit(name = newHabitState.value.name!!,
+            habitFrequency = newHabitState.value.habitFrequency,
+            habitFrequencyCount = newHabitState.value.habitFrequencyCount!!)
     }
 
     /**
@@ -52,6 +65,49 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
 
     suspend fun getById(id: Int): Habit {
         return habitRepo.getByID(id)
+    }
+
+    fun handleEvent(event: HabitEvent) {
+        when(event) {
+            is HabitEvent.NewHabitNameChanged -> {
+                updateNewHabitName(event.habitName)
+            }
+            is HabitEvent.NewHabitFrequencyChanged -> {
+                updateNewHabitFrequency(event.habitFrequency)
+            }
+            is HabitEvent.NewHabitFrequencyCountChanged -> {
+                updateNewHabitFrequencyCount(event.frequencyCount)
+            }
+        }
+    }
+
+    fun updateNewHabitName(habitName: String) {
+        newHabitState.value = newHabitState.value.copy(
+            name = habitName
+        )
+    }
+
+    fun updateNewHabitFrequency(habitFrequency: HabitFrequency) {
+        newHabitState.value = newHabitState.value.copy(
+            habitFrequency = habitFrequency
+        )
+    }
+
+    fun updateNewHabitFrequencyCount(habitFrequencyCount: String) {
+        newHabitState.value = newHabitState.value.copy(
+            habitFrequencyCount = habitFrequencyCount.toInt()
+        )
+    }
+
+    sealed class HabitEvent {
+
+        class NewHabitNameChanged(val habitName: String):
+            HabitEvent()
+        class NewHabitFrequencyChanged(val habitFrequency: HabitFrequency):
+            HabitEvent()
+        class NewHabitFrequencyCountChanged(val frequencyCount: String):
+            HabitEvent()
+
     }
 }
 
