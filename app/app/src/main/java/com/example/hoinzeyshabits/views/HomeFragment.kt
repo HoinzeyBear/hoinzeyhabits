@@ -43,14 +43,6 @@ class HomeFragment(var date: DateTime = DateTime()) : Fragment(),
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        setFragmentResultListener("newHabit") { requestKey, bundle ->
-            val result = GsonUtils.dateTimeGson().fromJson(bundle.getString("habitkey"), Habit::class.java)
-            habitsViewModel.insert(result)
-            Log.d("HOME", "I'm on thread ${Thread.currentThread()}")
-            Log.d("HOME", "${result.creationDate}")
-            Toast.makeText(requireContext(), "Habit created, good luck !", Toast.LENGTH_LONG).show()
-        }
-
         setFragmentResultListener("editHabit") { requestKey, bundle ->
             val result = GsonUtils.dateTimeGson().fromJson(bundle.getString("habitkey"), Habit::class.java)
             habitsViewModel.insert(result)

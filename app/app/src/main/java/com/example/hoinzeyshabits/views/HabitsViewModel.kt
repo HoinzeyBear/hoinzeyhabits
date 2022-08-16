@@ -27,14 +27,16 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
         MutableStateFlow(NewHabitState())
     }
 
-    fun printHabitsForDisplay() = viewModelScope.launch {
-        Log.d("HVM", "$habits")
+    private val mutableSavedState = MutableLiveData<Boolean>(false)
+    val savedState: LiveData<Boolean> get() = mutableSavedState
+
+    fun userPressedSave() {
+        mutableSavedState.value = true
     }
 
-    fun saveHabit() {
-        val newHabit = Habit(name = newHabitState.value.name!!,
-            habitFrequency = newHabitState.value.habitFrequency,
-            habitFrequencyCount = newHabitState.value.habitFrequencyCount!!)
+
+    fun printHabitsForDisplay() = viewModelScope.launch {
+        Log.d("HVM", "$habits")
     }
 
     /**
@@ -78,7 +80,19 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
             is HabitEvent.NewHabitFrequencyCountChanged -> {
                 updateNewHabitFrequencyCount(event.frequencyCount)
             }
+            is HabitEvent.SaveHabit -> {
+                saveHabit()
+            }
         }
+    }
+
+    fun saveHabit() {
+        val newHabit = Habit(name = newHabitState.value.name!!,
+            habitFrequency = newHabitState.value.habitFrequency,
+            habitFrequencyCount = newHabitState.value.habitFrequencyCount!!)
+
+        insert(newHabit)
+        userPressedSave()
     }
 
     fun updateNewHabitName(habitName: String) {
@@ -108,6 +122,7 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
         class NewHabitFrequencyCountChanged(val frequencyCount: String):
             HabitEvent()
 
+        object SaveHabit: HabitEvent()
     }
 }
 

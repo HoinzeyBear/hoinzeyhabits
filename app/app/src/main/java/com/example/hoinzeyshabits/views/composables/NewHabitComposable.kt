@@ -1,16 +1,13 @@
 package com.example.hoinzeyshabits.views.composables
 
-import android.app.Application
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,12 +38,12 @@ fun NewHabitBody(
     state: NewHabitState) {
     Column {
         NewHabitForm(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             state = state,
             onHabitNameChanged = { handleEvent(HabitsViewModel.HabitEvent.NewHabitNameChanged(it)) },
             onHabitFrequencyChanged = { handleEvent(HabitsViewModel.HabitEvent.NewHabitFrequencyChanged(it)) },
             onHabitFrequencyCountChanged = { handleEvent(HabitsViewModel.HabitEvent.NewHabitFrequencyCountChanged(it)) },
-            saveHabit = {  }
+            saveHabit = { handleEvent(HabitsViewModel.HabitEvent.SaveHabit) }
         )
     }
 }
@@ -62,6 +59,10 @@ fun NewHabitForm(
 
     NewHabitTitle()
     Spacer(modifier = Modifier.height(32.dp))
+    NewHabitName(modifier = Modifier.fillMaxWidth(), name = state.name, onNameChanged = onHabitNameChanged)
+    NewHabitSpinner(modifier = Modifier.fillMaxWidth(), onHabitFrequencyChanged = onHabitFrequencyChanged)
+    NewHabitFrequencyField(modifier = Modifier.fillMaxWidth(), onHabitFrequencyCountChanged = onHabitFrequencyCountChanged, count = state.habitFrequencyCount.toString())
+    SaveNewHabitButton(onSaveNewHabit = saveHabit)
 }
 
 @Composable
@@ -71,3 +72,93 @@ fun NewHabitTitle() {
         fontSize = 24.sp,
         fontWeight = FontWeight.Black)
 }
+
+@Composable
+fun NewHabitName(
+    modifier: Modifier,
+    name: String?,
+    onNameChanged: (habitname: String) -> Unit) {
+
+    TextField(
+        modifier = modifier,
+        value = name ?: "",
+        onValueChange = { name -> onNameChanged(name)},
+        label = {
+            Text(text = stringResource(R.string.habit))
+        })
+}
+
+@Composable
+fun NewHabitSpinner(modifier: Modifier, onHabitFrequencyChanged: (habitFrequency: HabitFrequency) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedIndex by remember { mutableStateOf(0) }
+    val items = stringArrayResource(id = R.array.habit_frequency_options)
+    Box(modifier = modifier.wrapContentSize(Alignment.TopStart)) {
+        Text(
+            text = HabitFrequency.values()[selectedIndex].name,
+            modifier = modifier.clickable { expanded = true })
+        DropdownMenu(
+            modifier = modifier,
+            expanded = expanded,
+            onDismissRequest =  { expanded = false },
+//        offset = DpOffset(16.dp, 0.dp)
+        ) {
+
+            items.forEachIndexed{ index, s ->
+                DropdownMenuItem(onClick = {
+                    expanded = false
+                    selectedIndex = index
+                    onHabitFrequencyChanged(HabitFrequency.values()[index])
+                }) {
+                    Text(text = s)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NewHabitFrequencyField(
+    modifier: Modifier,
+    count: String?,
+    onHabitFrequencyCountChanged: (habitFrequencyCount: String) -> Unit
+) {
+    TextField(
+        modifier = modifier,
+        value = count ?: "",
+        onValueChange = { newCount -> onHabitFrequencyCountChanged(newCount)},
+        label = {
+            Text(text = stringResource(R.string.times_per_day))
+        })
+}
+
+@Composable
+fun SaveNewHabitButton(
+    modifier: Modifier = Modifier,
+    onSaveNewHabit: () -> Unit
+) {
+    Button(modifier = modifier,
+        onClick = onSaveNewHabit) {
+        Text(text = stringResource(R.string.save))
+    }
+}
+
+//@Composable
+//fun AuthenticationButton(
+//    modifier: Modifier = Modifier,
+//    authenticationMode: AuthenticationMode,
+//    enableAuthentication: Boolean,
+//    onAuthenticate: () -> Unit) {
+//    Button(modifier = modifier,
+//        onClick = onAuthenticate,
+//        enabled = enableAuthentication) {
+//
+//        Text(text = stringResource(
+//            if (authenticationMode ==
+//                AuthenticationMode.SIGN_IN) {
+//                R.string.action_sign_in
+//            } else {
+//                R.string.action_sign_up
+//            }))
+//    }
+//}
