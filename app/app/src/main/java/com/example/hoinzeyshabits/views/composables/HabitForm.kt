@@ -18,26 +18,49 @@ import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.model.HabitFrequency
 import com.example.hoinzeyshabits.views.HabitsViewModel
 import com.example.hoinzeyshabits.views.HabitsViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
-fun NewHabit() {
+fun NewHabitScreenRoot() {
     val habitsRepo = (LocalContext.current.applicationContext as HabitsApplication).habitsRepository
     val habitsViewModel: HabitsViewModel = viewModel(factory = HabitsViewModelFactory(habitsRepo))
     MaterialTheme {
-        NewHabitBody(
+        EditHabitContent(
             modifier = Modifier.fillMaxWidth(),
             handleEvent = habitsViewModel::handleEvent,
-            habitsViewModel.newHabitState.collectAsState().value)
+            habitsViewModel.habitFormState.collectAsState().value)
     }
 }
 
 @Composable
-fun NewHabitBody(
+fun EditHabitScreenRoot(habitId: Int) {
+    val habitsRepo = (LocalContext.current.applicationContext as HabitsApplication).habitsRepository
+    val habitsViewModel: HabitsViewModel = viewModel(factory = HabitsViewModelFactory(habitsRepo))
+    val coroutineScope = rememberCoroutineScope()
+    coroutineScope.launch {
+        val habit = withContext(Dispatchers.IO) {
+            habitsViewModel.getById(habitId);
+        }
+        habitsViewModel.initHabitState(habit)
+    }
+    MaterialTheme {
+        EditHabitContent(
+            modifier = Modifier.fillMaxWidth(),
+            handleEvent = habitsViewModel::handleEvent,
+            habitsViewModel.habitFormState.collectAsState().value
+        )
+    }
+}
+
+@Composable
+fun EditHabitContent(
     modifier: Modifier = Modifier,
     handleEvent: (event: HabitsViewModel.HabitEvent) -> Unit,
-    state: NewHabitState) {
+    state: HabitFormState) {
     Column {
-        NewHabitForm(
+        EditHabitForm(
             modifier = modifier.fillMaxWidth(),
             state = state,
             onHabitNameChanged = { handleEvent(HabitsViewModel.HabitEvent.NewHabitNameChanged(it)) },
@@ -49,32 +72,35 @@ fun NewHabitBody(
 }
 
 @Composable
-fun NewHabitForm(
+fun EditHabitForm(
     modifier: Modifier = Modifier,
-    state: NewHabitState,
+    state: HabitFormState,
     onHabitNameChanged: (name: String) -> Unit,
     onHabitFrequencyChanged: (habitFrequency: HabitFrequency) -> Unit,
     onHabitFrequencyCountChanged: (habitFrequencyCount: String) -> Unit,
     saveHabit: () -> Unit) {
 
-    NewHabitTitle()
+    EditHabitTitle(state.formMode)
     Spacer(modifier = Modifier.height(32.dp))
-    NewHabitName(modifier = Modifier.fillMaxWidth(), name = state.name, onNameChanged = onHabitNameChanged)
-    NewHabitSpinner(modifier = Modifier.fillMaxWidth(), onHabitFrequencyChanged = onHabitFrequencyChanged)
-    NewHabitFrequencyField(modifier = Modifier.fillMaxWidth(), onHabitFrequencyCountChanged = onHabitFrequencyCountChanged, count = state.habitFrequencyCount.toString())
-    SaveNewHabitButton(onSaveNewHabit = saveHabit)
+    EditHabitName(modifier = Modifier.fillMaxWidth(), name = state.name, onNameChanged = onHabitNameChanged)
+    EditHabitSpinner(modifier = Modifier.fillMaxWidth(), onHabitFrequencyChanged = onHabitFrequencyChanged)
+    EditHabitFrequencyField(modifier = Modifier.fillMaxWidth(), onHabitFrequencyCountChanged = onHabitFrequencyCountChanged, count = state.habitFrequencyCount.toString())
+    SaveHabitButton(onSaveNewHabit = saveHabit)
 }
 
 @Composable
-fun NewHabitTitle() {
+fun EditHabitTitle(formMode: HabitFormMode) {
+    val text = if(formMode == HabitFormMode.EDIT_HABIT) {
+        stringResource(R.string.habit_new)
+    } else stringResource(R.string.habit_edit)
     Text(
-        text = stringResource(R.string.habit_new),
+        text = text,
         fontSize = 24.sp,
         fontWeight = FontWeight.Black)
 }
 
 @Composable
-fun NewHabitName(
+fun EditHabitName(
     modifier: Modifier,
     name: String?,
     onNameChanged: (habitname: String) -> Unit) {
@@ -89,7 +115,7 @@ fun NewHabitName(
 }
 
 @Composable
-fun NewHabitSpinner(modifier: Modifier, onHabitFrequencyChanged: (habitFrequency: HabitFrequency) -> Unit) {
+fun EditHabitSpinner(modifier: Modifier, onHabitFrequencyChanged: (habitFrequency: HabitFrequency) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableStateOf(0) }
     val items = stringArrayResource(id = R.array.habit_frequency_options)
@@ -118,7 +144,7 @@ fun NewHabitSpinner(modifier: Modifier, onHabitFrequencyChanged: (habitFrequency
 }
 
 @Composable
-fun NewHabitFrequencyField(
+fun EditHabitFrequencyField(
     modifier: Modifier,
     count: String?,
     onHabitFrequencyCountChanged: (habitFrequencyCount: String) -> Unit
@@ -133,7 +159,7 @@ fun NewHabitFrequencyField(
 }
 
 @Composable
-fun SaveNewHabitButton(
+fun SaveHabitButton(
     modifier: Modifier = Modifier,
     onSaveNewHabit: () -> Unit
 ) {
@@ -142,23 +168,3 @@ fun SaveNewHabitButton(
         Text(text = stringResource(R.string.save))
     }
 }
-
-//@Composable
-//fun AuthenticationButton(
-//    modifier: Modifier = Modifier,
-//    authenticationMode: AuthenticationMode,
-//    enableAuthentication: Boolean,
-//    onAuthenticate: () -> Unit) {
-//    Button(modifier = modifier,
-//        onClick = onAuthenticate,
-//        enabled = enableAuthentication) {
-//
-//        Text(text = stringResource(
-//            if (authenticationMode ==
-//                AuthenticationMode.SIGN_IN) {
-//                R.string.action_sign_in
-//            } else {
-//                R.string.action_sign_up
-//            }))
-//    }
-//}

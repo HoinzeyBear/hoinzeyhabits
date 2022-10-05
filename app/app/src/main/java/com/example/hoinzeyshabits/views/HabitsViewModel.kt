@@ -7,7 +7,8 @@ import com.example.hoinzeyshabits.model.AchievedHabit
 import com.example.hoinzeyshabits.model.Habit
 import com.example.hoinzeyshabits.model.HabitFrequency
 import com.example.hoinzeyshabits.model.pojo.HabitsWithAchievedDates
-import com.example.hoinzeyshabits.views.composables.NewHabitState
+import com.example.hoinzeyshabits.views.composables.HabitFormMode
+import com.example.hoinzeyshabits.views.composables.HabitFormState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.joda.time.DateTime
@@ -23,11 +24,21 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
     var targetDate: DateTime = DateTime.now().withTimeAtStartOfDay()
 //    var today: DateTime = DateTime.now().withTimeAtStartOfDay()
 
-    val newHabitState  by lazy{
-        MutableStateFlow(NewHabitState())
+    val habitFormState  by lazy {
+        MutableStateFlow(HabitFormState())
     }
 
-    private val mutableSavedState = MutableLiveData<Boolean>(false)
+    fun initHabitState(habit: Habit) {
+        habitFormState.value = habitFormState.value.copy(
+            habitId = habit.habitId,
+            name = habit.name,
+            habitFrequency = habit.habitFrequency,
+            habitFrequencyCount = habit.habitFrequencyCount.toString(),
+            formMode = HabitFormMode.EDIT_HABIT
+        )
+    }
+
+    private val mutableSavedState = MutableLiveData(false)
     val savedState: LiveData<Boolean> get() = mutableSavedState
 
     fun userPressedSave() {
@@ -87,29 +98,41 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
     }
 
     fun saveHabit() {
-        val newHabit = Habit(name = newHabitState.value.name!!,
-            habitFrequency = newHabitState.value.habitFrequency,
-            habitFrequencyCount = newHabitState.value.habitFrequencyCount!!)
-
-        insert(newHabit)
+        if(habitFormState.value.formMode == HabitFormMode.NEW_HABIT) {
+            val newHabit = Habit(name = habitFormState.value.name!!,
+                habitFrequency = habitFormState.value.habitFrequency,
+                habitFrequencyCount = habitFormState.value.habitFrequencyCount.toInt())
+            insert(newHabit)
+        } else {
+            viewModelScope.launch {
+                habitFormState.value.let {
+                    insert(Habit(
+                        habitId = it.habitId,
+                        name = it.name!!,
+                        habitFrequency = it.habitFrequency,
+                        habitFrequencyCount = it.habitFrequencyCount.toInt()
+                    ))
+                }
+            }
+        }
         userPressedSave()
     }
 
     fun updateNewHabitName(habitName: String) {
-        newHabitState.value = newHabitState.value.copy(
+        habitFormState.value = habitFormState.value.copy(
             name = habitName
         )
     }
 
     fun updateNewHabitFrequency(habitFrequency: HabitFrequency) {
-        newHabitState.value = newHabitState.value.copy(
+        habitFormState.value = habitFormState.value.copy(
             habitFrequency = habitFrequency
         )
     }
 
     fun updateNewHabitFrequencyCount(habitFrequencyCount: String) {
-        newHabitState.value = newHabitState.value.copy(
-            habitFrequencyCount = habitFrequencyCount.toInt()
+        habitFormState.value = habitFormState.value.copy(
+            habitFrequencyCount = habitFrequencyCount
         )
     }
 

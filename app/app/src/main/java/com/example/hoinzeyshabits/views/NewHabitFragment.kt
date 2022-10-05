@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.hoinzeyshabits.HabitsApplication
 import com.example.hoinzeyshabits.R
-import com.example.hoinzeyshabits.views.composables.NewHabit
+import com.example.hoinzeyshabits.views.composables.NewHabitScreenRoot
 
 /**
  * A simple [Fragment] subclass.
@@ -36,7 +36,7 @@ class NewHabitFragment : Fragment() {
 
         return ComposeView(requireContext()).apply {
             setContent {
-                NewHabit()
+                NewHabitScreenRoot()
             }
         }
     }
