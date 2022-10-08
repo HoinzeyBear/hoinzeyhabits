@@ -8,7 +8,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.hoinzeyshabits.HabitsApplication
 import com.example.hoinzeyshabits.R
-import com.example.hoinzeyshabits.views.composables.EditHabitScreenRoot
 
 class EditHabitFragment : Fragment() {
 

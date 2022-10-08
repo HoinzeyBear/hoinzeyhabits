@@ -9,6 +9,7 @@ import com.example.hoinzeyshabits.model.HabitFrequency
 import com.example.hoinzeyshabits.model.pojo.HabitsWithAchievedDates
 import com.example.hoinzeyshabits.views.composables.HabitFormMode
 import com.example.hoinzeyshabits.views.composables.HabitFormState
+import com.example.hoinzeyshabits.views.composables.HabitListState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.joda.time.DateTime
@@ -16,13 +17,10 @@ import org.joda.time.DateTime
 class HabitsViewModel(private val habitRepo: HabitsRepository)
     : ViewModel() {
 
-    // Using LiveData and caching what allHabits returns has several benefits:
-    // - We can put an observer on the data (instead of polling for changes) and only update the
-    //   the UI when the data actually changes.
-    // - Repository is completely separated from the UI through the ViewModel
     val habits: LiveData<List<HabitsWithAchievedDates>> = habitRepo.allHabitsWithDates.asLiveData()
     var targetDate: DateTime = DateTime.now().withTimeAtStartOfDay()
-//    var today: DateTime = DateTime.now().withTimeAtStartOfDay()
+
+    val habitListState = MutableStateFlow(HabitListState())
 
     val habitFormState  by lazy {
         MutableStateFlow(HabitFormState())
@@ -37,6 +35,13 @@ class HabitsViewModel(private val habitRepo: HabitsRepository)
             formMode = HabitFormMode.EDIT_HABIT
         )
     }
+
+//    fun loadListContent() {
+//        habitListState.value = habitListState.value.copy(
+//            habitList = habits,
+//            targetDate = targetDate
+//        )
+//    }
 
     private val mutableSavedState = MutableLiveData(false)
     val savedState: LiveData<Boolean> get() = mutableSavedState

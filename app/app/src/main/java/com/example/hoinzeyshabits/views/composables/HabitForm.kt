@@ -6,53 +6,14 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.hoinzeyshabits.HabitsApplication
 import com.example.hoinzeyshabits.R
 import com.example.hoinzeyshabits.model.HabitFrequency
 import com.example.hoinzeyshabits.views.HabitsViewModel
-import com.example.hoinzeyshabits.views.HabitsViewModelFactory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-
-@Composable
-fun NewHabitScreenRoot() {
-    val habitsRepo = (LocalContext.current.applicationContext as HabitsApplication).habitsRepository
-    val habitsViewModel: HabitsViewModel = viewModel(factory = HabitsViewModelFactory(habitsRepo))
-    MaterialTheme {
-        EditHabitContent(
-            modifier = Modifier.fillMaxWidth(),
-            handleEvent = habitsViewModel::handleEvent,
-            habitsViewModel.habitFormState.collectAsState().value)
-    }
-}
-
-@Composable
-fun EditHabitScreenRoot(habitId: Int) {
-    val habitsRepo = (LocalContext.current.applicationContext as HabitsApplication).habitsRepository
-    val habitsViewModel: HabitsViewModel = viewModel(factory = HabitsViewModelFactory(habitsRepo))
-    val coroutineScope = rememberCoroutineScope()
-    coroutineScope.launch {
-        val habit = withContext(Dispatchers.IO) {
-            habitsViewModel.getById(habitId);
-        }
-        habitsViewModel.initHabitState(habit)
-    }
-    MaterialTheme {
-        EditHabitContent(
-            modifier = Modifier.fillMaxWidth(),
-            handleEvent = habitsViewModel::handleEvent,
-            habitsViewModel.habitFormState.collectAsState().value
-        )
-    }
-}
 
 @Composable
 fun EditHabitContent(
